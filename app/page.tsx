@@ -3,20 +3,25 @@ import { useState, Dispatch, SetStateAction } from 'react';
 
 export default function DriverSalaryCalculator() {
   const [km, setKm] = useState<number | ''>('');
-  const [loads, setLoads] = useState<number | ''>('');
-  const [unloads, setUnloads] = useState<number | ''>('');
+  const [loads, setLoads] = useState<number | ''>(''); // dabar įvedame tik pakrovimus
   const [stations, setStations] = useState<number | ''>('');
 
+  // KM atlygis
   const kmPay = (Number(km) / 100) * 11;
-  const loadPay = Number(loads) * 7.6;
-  const unloadPay = Number(unloads) * 7.6;
+
+  // Pakrovimai + iškrovimai (1 val. už pakrovimą ir 1 val. už iškrovimą)
+  const totalLoadHours = Number(loads) * 2; // 1 val pakrovimas + 1 val iškrovimas
+  const loadPay = totalLoadHours * 7.6;
+
+  // Degalinės atlygis
   const stationPay = (Number(stations) * 20 / 60) * 7.6;
 
-  const total = kmPay + loadPay + unloadPay + stationPay;
+  const total = kmPay + loadPay + stationPay;
 
   return (
     <main className="min-h-screen bg-gray-900 text-white p-4 flex flex-col justify-between">
 
+      {/* ALGA – DIDELĖ */}
       <div className="bg-green-600 rounded-xl p-6 text-center mb-6 shadow-lg">
         <p className="text-sm uppercase tracking-wide">Tavo alga</p>
         <p className="text-5xl font-extrabold mt-2">
@@ -24,17 +29,17 @@ export default function DriverSalaryCalculator() {
         </p>
       </div>
 
+      {/* ĮVESTYS */}
       <div className="space-y-4">
         <Input label="Nuvažiuoti km" value={km} setValue={setKm} />
-        <Input label="Pakrovimai" value={loads} setValue={setLoads} />
-        <Input label="Iškrovimai" value={unloads} setValue={setUnloads} />
+        <Input label="Pakrovimu skaičius terminale" value={loads} setValue={setLoads} />
         <Input label="Degalinės" value={stations} setValue={setStations} />
       </div>
 
+      {/* DETALĖS */}
       <div className="mt-6 bg-gray-800 rounded-xl p-4 text-sm space-y-1">
         <Row text="KM atlygis" value={kmPay} />
-        <Row text="Pakrovimai" value={loadPay} />
-        <Row text="Iškrovimai" value={unloadPay} />
+        <Row text="Pakrovimai + iškrovimai" value={loadPay} />
         <Row text="Degalinės" value={stationPay} />
       </div>
     </main>
