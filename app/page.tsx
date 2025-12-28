@@ -45,7 +45,7 @@ export default function DriverSalaryCalculator() {
       {/* DETALĖS */}
       <div className="mt-6 bg-gray-800 rounded-xl p-4 text-sm space-y-1">
         <Row text="KM atlygis" value={kmPay} />
-        <Row text={`Pakrovimai terminale skaičius (${loadHours} val.)`} value={loadPay} />
+        <Row text={`Pakrovimai + iškrovimai (${loadHours} val.)`} value={loadPay} />
         <Row text="Degalinės" value={stationPay} />
         <Row text="Papildomi darbai" value={extraPay} />
       </div>
