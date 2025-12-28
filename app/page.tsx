@@ -3,25 +3,26 @@ import { useState, Dispatch, SetStateAction } from 'react';
 
 export default function DriverSalaryCalculator() {
   const [km, setKm] = useState<number | ''>('');
-  const [loads, setLoads] = useState<number | ''>(''); // dabar įvedame tik pakrovimus
+  const [loads, setLoads] = useState<number | ''>(''); // pakrovimai terminale
   const [stations, setStations] = useState<number | ''>('');
+  const [extraHours, setExtraHours] = useState<number | ''>(''); // papildomas darbas
 
-  // KM atlygis
+  // Skaičiavimai
   const kmPay = (Number(km) / 100) * 11;
 
-  // Pakrovimai + iškrovimai (1 val. už pakrovimą ir 1 val. už iškrovimą)
-  const totalLoadHours = Number(loads) * 2; // 1 val pakrovimas + 1 val iškrovimas
-  const loadPay = totalLoadHours * 7.6;
+  const loadHours = Number(loads) * 2; // pakrovimas + iškrovimas
+  const loadPay = loadHours * 7.6;
 
-  // Degalinės atlygis
   const stationPay = (Number(stations) * 20 / 60) * 7.6;
 
-  const total = kmPay + loadPay + stationPay;
+  const extraPay = Number(extraHours) * 7.6;
+
+  const total = kmPay + loadPay + stationPay + extraPay;
 
   return (
     <main className="min-h-screen bg-gray-900 text-white p-4 flex flex-col justify-between">
 
-      {/* ALGA – DIDELĖ */}
+      {/* ALGA – DIDELĖ IR AIŠKI */}
       <div className="bg-green-600 rounded-xl p-6 text-center mb-6 shadow-lg">
         <p className="text-sm uppercase tracking-wide">Tavo alga</p>
         <p className="text-5xl font-extrabold mt-2">
@@ -32,21 +33,28 @@ export default function DriverSalaryCalculator() {
       {/* ĮVESTYS */}
       <div className="space-y-4">
         <Input label="Nuvažiuoti km" value={km} setValue={setKm} />
-        <Input label="Pakrovimu skaičius terminale" value={loads} setValue={setLoads} />
+        <Input
+          label="Pakrovimai terminale (iškrovimai skaičiuojami automatiškai)"
+          value={loads}
+          setValue={setLoads}
+        />
         <Input label="Degalinės" value={stations} setValue={setStations} />
+        <Input label="Papildomas darbas (val.)" value={extraHours} setValue={setExtraHours} />
       </div>
 
       {/* DETALĖS */}
       <div className="mt-6 bg-gray-800 rounded-xl p-4 text-sm space-y-1">
         <Row text="KM atlygis" value={kmPay} />
-        <Row text="Pakrovimai + iškrovimai" value={loadPay} />
+        <Row text={`Pakrovimai + iškrovimai (${loadHours} val.)`} value={loadPay} />
         <Row text="Degalinės" value={stationPay} />
+        <Row text="Papildomas darbas" value={extraPay} />
       </div>
     </main>
   );
 }
 
-// Tipai Input komponentui
+/* ===== TIPAI ===== */
+
 interface InputProps {
   label: string;
   value: number | '';
@@ -60,14 +68,15 @@ function Input({ label, value, setValue }: InputProps) {
       <input
         type="number"
         value={value}
-        onChange={e => setValue(e.target.value === '' ? '' : Number(e.target.value))}
+        onChange={e =>
+          setValue(e.target.value === '' ? '' : Number(e.target.value))
+        }
         className="w-full p-4 text-lg rounded-xl bg-gray-800 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-green-500"
       />
     </div>
   );
 }
 
-// Tipai Row komponentui
 interface RowProps {
   text: string;
   value: number;
