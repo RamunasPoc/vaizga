@@ -34,20 +34,20 @@ export default function DriverSalaryCalculator() {
       <div className="space-y-4">
         <Input label="Nuvažiuoti km" value={km} setValue={setKm} />
         <Input
-          label="Pakrovimai terminale (iškrovimai skaičiuojami automatiškai)"
+          label="Pakrovimai terminale skaičius"
           value={loads}
           setValue={setLoads}
         />
         <Input label="Degalinės" value={stations} setValue={setStations} />
-        <Input label="Papildomas darbas (val.)" value={extraHours} setValue={setExtraHours} />
+        <Input label="Papildomas darbas (jei buvo)" value={extraHours} setValue={setExtraHours} />
       </div>
 
       {/* DETALĖS */}
       <div className="mt-6 bg-gray-800 rounded-xl p-4 text-sm space-y-1">
         <Row text="KM atlygis" value={kmPay} />
-        <Row text={`Pakrovimai + iškrovimai (${loadHours} val.)`} value={loadPay} />
+        <Row text={`Pakrovimai terminale skaičius (${loadHours} val.)`} value={loadPay} />
         <Row text="Degalinės" value={stationPay} />
-        <Row text="Papildomi darbai (jei buvo)" value={extraPay} />
+        <Row text="Papildomi darbai" value={extraPay} />
       </div>
     </main>
   );
