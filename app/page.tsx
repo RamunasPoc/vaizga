@@ -22,16 +22,18 @@ export default function DriverSalaryCalculator() {
 
   const total = kmPay + loadPay + stationPay + extraPay;
 
-  // PDF generavimas
+  // PDF generavimas su paprastu fontu helvetica (palaiko UTF-8)
   const generatePDF = () => {
     const doc = new jsPDF();
 
+    doc.setFont("helvetica", "normal");
+
     doc.setFontSize(16);
-    doc.text('Vairuotojo darbo ataskaita', 20, 20);
+    doc.text("Vairuotojo darbo ataskaita", 20, 20);
 
     doc.setFontSize(12);
-    doc.text(`Vardas: ${name}`, 20, 35);
-    doc.text(`Pavardė: ${surname}`, 20, 43);
+    doc.text(`Vardas: ${name || '-'}`, 20, 35);
+    doc.text(`Pavardė: ${surname || '-'}`, 20, 43);
 
     doc.text(`Nuvažiuoti km: ${km !== '' ? km : '-'}`, 20, 60);
     doc.text(
@@ -41,8 +43,8 @@ export default function DriverSalaryCalculator() {
     );
     doc.text(`Degalinės: ${stations !== '' ? stations : '-'}`, 20, 76);
 
-    doc.text(`Papildomi darbai:`, 20, 92);
-    doc.text(extraWorkDesc || '-', 20, 100);
+    doc.text("Papildomi darbai:", 20, 92);
+    doc.text(extraWorkDesc || "-", 20, 100);
     doc.text(
       `Papildomo darbo valandos: ${extraHours !== '' ? extraHours : '-'}`,
       20,
