@@ -1,6 +1,7 @@
 'use client';
 import { useState, Dispatch, SetStateAction } from 'react';
 import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 export default function DriverSalaryCalculator() {
   const [name, setName] = useState('');
@@ -13,7 +14,7 @@ export default function DriverSalaryCalculator() {
   const [extraWorkDesc, setExtraWorkDesc] = useState('');
   const [extraHours, setExtraHours] = useState<number | ''>(''); // papildomas darbas val.
 
-  // Skaičiavimai su patikrinimu, kad tuščias laukas netaptų 0
+  // Skaičiavimai
   const kmPay = km !== '' ? (Number(km) / 100) * 11 : 0;
   const loadHours = loads !== '' ? Number(loads) * 2 : 0; // pakrovimas + iškrovimas
   const loadPay = loadHours * 7.6;
@@ -22,39 +23,20 @@ export default function DriverSalaryCalculator() {
 
   const total = kmPay + loadPay + stationPay + extraPay;
 
-  // PDF generavimas su paprastu fontu helvetica (palaiko UTF-8)
-  const generatePDF = () => {
-    const doc = new jsPDF();
+  // PDF generavimas su html2canvas
+  const generatePDF = async () => {
+    const element = document.getElementById('report');
+    if (!element) return;
 
-    doc.setFont("helvetica", "normal");
+    const canvas = await html2canvas(element, { scale: 2 });
+    const imgData = canvas.toDataURL('image/png');
 
-    doc.setFontSize(16);
-    doc.text("Vairuotojo darbo ataskaita", 20, 20);
+    const pdf = new jsPDF('p', 'mm', 'a4');
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-    doc.setFontSize(12);
-    doc.text(`Vardas: ${name || '-'}`, 20, 35);
-    doc.text(`Pavardė: ${surname || '-'}`, 20, 43);
-
-    doc.text(`Nuvažiuoti km: ${km !== '' ? km : '-'}`, 20, 60);
-    doc.text(
-      `Pakrovimai terminale: ${loads !== '' ? loads : '-'} (${loadHours} val.)`,
-      20,
-      68
-    );
-    doc.text(`Degalinės: ${stations !== '' ? stations : '-'}`, 20, 76);
-
-    doc.text("Papildomi darbai:", 20, 92);
-    doc.text(extraWorkDesc || "-", 20, 100);
-    doc.text(
-      `Papildomo darbo valandos: ${extraHours !== '' ? extraHours : '-'}`,
-      20,
-      112
-    );
-
-    doc.setFontSize(14);
-    doc.text(`Bendra alga: ${total.toFixed(2)} €`, 20, 130);
-
-    doc.save(`darbo-ataskaita-${name}-${surname}.pdf`);
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+    pdf.save(`darbo-ataskaita-${name}-${surname}.pdf`);
   };
 
   return (
@@ -66,13 +48,12 @@ export default function DriverSalaryCalculator() {
         <p className="text-5xl font-bold">{total > 0 ? total.toFixed(2) : ''} €</p>
       </div>
 
-      {/* VARDAS PAVARDĖ */}
+      {/* Įvedimo laukai */}
       <Section title="Vairuotojas">
         <Input label="Vardas" value={name} setValue={setName} text />
         <Input label="Pavardė" value={surname} setValue={setSurname} text />
       </Section>
 
-      {/* PAGRINDINIAI DARBAI */}
       <Section title="Pagrindiniai darbai">
         <Input label="Nuvažiuoti km" value={km} setValue={setKm} />
         <Input
@@ -83,7 +64,6 @@ export default function DriverSalaryCalculator() {
         <Input label="Degalinės" value={stations} setValue={setStations} />
       </Section>
 
-      {/* PAPILDOMI DARBAI */}
       <Section title="Papildomi darbai">
         <Textarea
           label="Papildomų darbų aprašymas"
@@ -97,7 +77,20 @@ export default function DriverSalaryCalculator() {
         />
       </Section>
 
-      {/* PDF */}
+      {/* Ataskaita (slapta HTML dalis PDF generavimui) */}
+      <div id="report" className="hidden bg-white text-black p-6 space-y-2 w-[210mm]">
+        <h1 className="text-2xl font-bold">Vairuotojo darbo ataskaita</h1>
+        <p>Vardas: {name || '-'}</p>
+        <p>Pavardė: {surname || '-'}</p>
+        <p>Nuvažiuoti km: {km !== '' ? km : '-'}</p>
+        <p>Pakrovimai terminale: {loads !== '' ? loads : '-'} ({loadHours} val.)</p>
+        <p>Degalinės: {stations !== '' ? stations : '-'}</p>
+        <p>Papildomi darbai: {extraWorkDesc || '-'}</p>
+        <p>Papildomo darbo valandos: {extraHours !== '' ? extraHours : '-'}</p>
+        <p className="font-bold">Bendra alga: {total.toFixed(2)} €</p>
+      </div>
+
+      {/* PDF mygtukas */}
       <button
         onClick={generatePDF}
         className="w-full bg-blue-600 p-4 rounded-xl text-lg font-bold"
@@ -137,7 +130,7 @@ function Input({ label, value, setValue, text }: InputProps) {
         onChange={e =>
           setValue(text ? e.target.value : e.target.value === '' ? '' : Number(e.target.value))
         }
-        className="w-full p-3 rounded bg-gray-700"
+        className="w-full p-3 rounded bg-gray-700 text-black"
       />
     </div>
   );
@@ -150,7 +143,7 @@ function Textarea({ label, value, setValue }: InputProps) {
       <textarea
         value={value}
         onChange={e => setValue(e.target.value)}
-        className="w-full p-3 rounded bg-gray-700"
+        className="w-full p-3 rounded bg-gray-700 text-black"
         rows={3}
       />
     </div>
