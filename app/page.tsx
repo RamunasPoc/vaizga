@@ -13,15 +13,12 @@ export default function DriverSalaryCalculator() {
   const [extraWorkDesc, setExtraWorkDesc] = useState('');
   const [extraHours, setExtraHours] = useState<number | ''>(''); // papildomas darbas val.
 
-  // Skaičiavimai
-  const kmPay = (Number(km) / 100) * 11;
-
-  const loadHours = Number(loads) * 2; // pakrovimas + iškrovimas
+  // Skaičiavimai su patikrinimu, kad tuščias laukas netaptų 0
+  const kmPay = km !== '' ? (Number(km) / 100) * 11 : 0;
+  const loadHours = loads !== '' ? Number(loads) * 2 : 0; // pakrovimas + iškrovimas
   const loadPay = loadHours * 7.6;
-
-  const stationPay = (Number(stations) * 20 / 60) * 7.6;
-
-  const extraPay = Number(extraHours) * 7.6;
+  const stationPay = stations !== '' ? (Number(stations) * 20 / 60) * 7.6 : 0;
+  const extraPay = extraHours !== '' ? Number(extraHours) * 7.6 : 0;
 
   const total = kmPay + loadPay + stationPay + extraPay;
 
@@ -36,13 +33,21 @@ export default function DriverSalaryCalculator() {
     doc.text(`Vardas: ${name}`, 20, 35);
     doc.text(`Pavardė: ${surname}`, 20, 43);
 
-    doc.text(`Nuvažiuoti km: ${km}`, 20, 60);
-    doc.text(`Pakrovimai terminale: ${loads} ( ${loadHours} val.)`, 20, 68);
-    doc.text(`Degalinės: ${stations}`, 20, 76);
+    doc.text(`Nuvažiuoti km: ${km !== '' ? km : '-'}`, 20, 60);
+    doc.text(
+      `Pakrovimai terminale: ${loads !== '' ? loads : '-'} (${loadHours} val.)`,
+      20,
+      68
+    );
+    doc.text(`Degalinės: ${stations !== '' ? stations : '-'}`, 20, 76);
 
     doc.text(`Papildomi darbai:`, 20, 92);
     doc.text(extraWorkDesc || '-', 20, 100);
-    doc.text(`Papildomo darbo valandos: ${extraHours}`, 20, 112);
+    doc.text(
+      `Papildomo darbo valandos: ${extraHours !== '' ? extraHours : '-'}`,
+      20,
+      112
+    );
 
     doc.setFontSize(14);
     doc.text(`Bendra alga: ${total.toFixed(2)} €`, 20, 130);
@@ -56,7 +61,7 @@ export default function DriverSalaryCalculator() {
       {/* ALGA */}
       <div className="bg-green-600 rounded-xl p-6 text-center">
         <p className="text-sm uppercase">Bendra alga</p>
-        <p className="text-5xl font-bold">{total.toFixed(2)} €</p>
+        <p className="text-5xl font-bold">{total > 0 ? total.toFixed(2) : ''} €</p>
       </div>
 
       {/* VARDAS PAVARDĖ */}
@@ -127,7 +132,9 @@ function Input({ label, value, setValue, text }: InputProps) {
         type={text ? 'text' : 'number'}
         value={value}
         placeholder={text ? 'Įveskite tekstą' : 'Įveskite skaičių'}
-        onChange={e => setValue(text ? e.target.value : Number(e.target.value))}
+        onChange={e =>
+          setValue(text ? e.target.value : e.target.value === '' ? '' : Number(e.target.value))
+        }
         className="w-full p-3 rounded bg-gray-700"
       />
     </div>
