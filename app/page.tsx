@@ -77,9 +77,20 @@ export default function DriverSalaryCalculator() {
         />
       </Section>
 
-      {/* Ataskaita (slapta HTML dalis PDF generavimui) */}
-      <div id="report" className="hidden bg-white text-black p-6 space-y-2 w-[210mm]">
-        <h1 className="text-2xl font-bold">Vairuotojo darbo ataskaita</h1>
+      {/* PDF ataskaita (paslėpta, bet matoma html2canvas) */}
+      <div
+        id="report"
+        style={{
+          position: 'absolute',
+          left: '-9999px',
+          top: '0',
+          backgroundColor: 'white',
+          color: 'black',
+          padding: '20px',
+          width: '210mm',
+        }}
+      >
+        <h1 style={{ fontSize: '20px', fontWeight: 'bold' }}>Vairuotojo darbo ataskaita</h1>
         <p>Vardas: {name || '-'}</p>
         <p>Pavardė: {surname || '-'}</p>
         <p>Nuvažiuoti km: {km !== '' ? km : '-'}</p>
@@ -87,7 +98,7 @@ export default function DriverSalaryCalculator() {
         <p>Degalinės: {stations !== '' ? stations : '-'}</p>
         <p>Papildomi darbai: {extraWorkDesc || '-'}</p>
         <p>Papildomo darbo valandos: {extraHours !== '' ? extraHours : '-'}</p>
-        <p className="font-bold">Bendra alga: {total.toFixed(2)} €</p>
+        <p style={{ fontWeight: 'bold' }}>Bendra alga: {total.toFixed(2)} €</p>
       </div>
 
       {/* PDF mygtukas */}
