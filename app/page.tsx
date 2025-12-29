@@ -7,20 +7,25 @@ export default function DriverSalaryCalculator() {
   const [surname, setSurname] = useState('');
 
   const [km, setKm] = useState<number | ''>('');
-  const [loads, setLoads] = useState<number | ''>('');
+  const [loads, setLoads] = useState<number | ''>(''); // pakrovimai terminale
   const [stations, setStations] = useState<number | ''>('');
 
   const [extraWorkDesc, setExtraWorkDesc] = useState('');
-  const [extraHours, setExtraHours] = useState<number | ''>('');
+  const [extraHours, setExtraHours] = useState<number | ''>(''); // papildomas darbas val.
 
+  // Skaičiavimai
   const kmPay = (Number(km) / 100) * 11;
-  const loadHours = Number(loads) * 2;
+
+  const loadHours = Number(loads) * 2; // pakrovimas + iškrovimas
   const loadPay = loadHours * 7.6;
+
   const stationPay = (Number(stations) * 20 / 60) * 7.6;
+
   const extraPay = Number(extraHours) * 7.6;
 
   const total = kmPay + loadPay + stationPay + extraPay;
 
+  // PDF generavimas
   const generatePDF = () => {
     const doc = new jsPDF();
 
@@ -60,10 +65,14 @@ export default function DriverSalaryCalculator() {
         <Input label="Pavardė" value={surname} setValue={setSurname} text />
       </Section>
 
-      {/* DARBAI */}
+      {/* PAGRINDINIAI DARBAI */}
       <Section title="Pagrindiniai darbai">
         <Input label="Nuvažiuoti km" value={km} setValue={setKm} />
-        <Input label="Pakrovimai terminale" value={loads} setValue={setLoads} />
+        <Input
+          label="Pakrovimai terminale (iškrovimai automatiškai)"
+          value={loads}
+          setValue={setLoads}
+        />
         <Input label="Degalinės" value={stations} setValue={setStations} />
       </Section>
 
@@ -74,7 +83,11 @@ export default function DriverSalaryCalculator() {
           value={extraWorkDesc}
           setValue={setExtraWorkDesc}
         />
-        <Input label="Papildomo darbo valandos" value={extraHours} setValue={setExtraHours} />
+        <Input
+          label="Papildomo darbo valandos"
+          value={extraHours}
+          setValue={setExtraHours}
+        />
       </Section>
 
       {/* PDF */}
@@ -113,6 +126,7 @@ function Input({ label, value, setValue, text }: InputProps) {
       <input
         type={text ? 'text' : 'number'}
         value={value}
+        placeholder={text ? 'Įveskite tekstą' : 'Įveskite skaičių'}
         onChange={e => setValue(text ? e.target.value : Number(e.target.value))}
         className="w-full p-3 rounded bg-gray-700"
       />
