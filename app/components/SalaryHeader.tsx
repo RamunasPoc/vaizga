@@ -7,7 +7,7 @@ export default function SalaryHeader({ total }: { total: number }) {
     <div className="bg-green-600 rounded-xl p-6 text-center relative">
       {/* Logotipas viršuje kairėje */}
       <div className="absolute top-4 left-4">
-        <Image src="/logoss.png" alt="Logo" width={110} height={110} />
+        <Image src="/logoss.png" alt="Logo" width={150} height={150} />
       </div>
 
       {/* Tekstas */}
