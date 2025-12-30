@@ -10,7 +10,7 @@ import TextInput from './components/inputs/TextInput';
 import NumberInput from './components/inputs/NumberInput';
 import TextareaInput from './components/inputs/TextareaInput';
 import HiddenReport from './components/HiddenReport';
-
+import SalaryBreakdown from './components/SalaryBreakdown';
 
 export default function Page() {
   const [name, setName] = useState('');
@@ -23,14 +23,16 @@ export default function Page() {
   const [extraWorkDesc, setExtraWorkDesc] = useState('');
   const [extraHours, setExtraHours] = useState<number | ''>('');
 
+  // Algų skaičiavimai
   const kmPay = km !== '' ? (Number(km) / 100) * 11 : 0;
-  const loadHours = loads !== '' ? Number(loads) * 2 : 0;
+  const loadHours = loads !== '' ? Number(loads) * 2 : 0; // pakrovimas + iškrovimas
   const loadPay = loadHours * 7.6;
   const stationPay = stations !== '' ? (Number(stations) * 20 / 60) * 7.6 : 0;
   const extraPay = extraHours !== '' ? Number(extraHours) * 7.6 : 0;
 
   const total = kmPay + loadPay + stationPay + extraPay;
 
+  // PDF generavimas
   const generatePDF = async () => {
     const el = document.getElementById('report');
     if (!el) return;
@@ -50,34 +52,49 @@ export default function Page() {
     <main className="min-h-screen bg-gray-900 text-white p-4 space-y-6">
       <SalaryHeader total={total} />
 
+      {/* Vairuotojas */}
       <Section title="Vairuotojas">
-        <TextInput label="Vardas" value={name} setValue={setName} />
-        <TextInput label="Pavardė" value={surname} setValue={setSurname} />
+        <TextInput label="Vardas" value={name} setValue={setName} icon="👤" />
+        <TextInput label="Pavardė" value={surname} setValue={setSurname} icon="👤" />
       </Section>
 
+      {/* Pagrindiniai darbai */}
       <Section title="Pagrindiniai darbai">
-        <NumberInput label="Nuvažiuoti km" value={km} setValue={setKm} />
+        <NumberInput label="Nuvažiuoti km" value={km} setValue={setKm} icon="🛣️" />
         <NumberInput
           label="Pakrovimai terminale"
           value={loads}
           setValue={setLoads}
+          icon="📦"
         />
-        <NumberInput label="Degalinės" value={stations} setValue={setStations} />
+        <NumberInput label="Degalinės" value={stations} setValue={setStations} icon="⛽" />
       </Section>
 
+      {/* Papildomi darbai */}
       <Section title="Papildomi darbai">
         <TextareaInput
           label="Papildomų darbų aprašymas"
           value={extraWorkDesc}
           setValue={setExtraWorkDesc}
+          icon="📝"
         />
         <NumberInput
           label="Papildomo darbo valandos"
           value={extraHours}
           setValue={setExtraHours}
+          icon="⏱️"
         />
       </Section>
 
+      {/* Algos sudėtis */}
+      <SalaryBreakdown
+        kmPay={kmPay}
+        loadPay={loadPay}
+        stationPay={stationPay}
+        extraPay={extraPay}
+      />
+
+      {/* Paslėptas PDF ataskaitos komponentas */}
       <HiddenReport
         name={name}
         surname={surname}
@@ -88,8 +105,13 @@ export default function Page() {
         extraHours={extraHours}
         loadHours={loadHours}
         total={total}
+        kmPay={kmPay}
+        loadPay={loadPay}
+        stationPay={stationPay}
+        extraPay={extraPay}
       />
 
+      {/* PDF mygtukas */}
       <button
         onClick={generatePDF}
         className="w-full bg-blue-600 hover:bg-blue-700 transition p-4 rounded-xl text-lg font-bold"

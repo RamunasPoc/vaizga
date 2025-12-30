@@ -1,5 +1,3 @@
-'use client';
-
 interface Props {
   name: string;
   surname: string;
@@ -10,37 +8,74 @@ interface Props {
   extraHours: number | '';
   loadHours: number;
   total: number;
+
+  kmPay: number;
+  loadPay: number;
+  stationPay: number;
+  extraPay: number;
 }
 
-export default function HiddenReport(props: Props) {
+export default function HiddenReport({
+  name,
+  surname,
+  km,
+  loads,
+  stations,
+  extraWorkDesc,
+  extraHours,
+  loadHours,
+  total,
+  kmPay,
+  loadPay,
+  stationPay,
+  extraPay,
+}: Props) {
   return (
     <div
       id="report"
       style={{
         position: 'absolute',
         left: '-9999px',
-        backgroundColor: 'white',
-        color: 'black',
-        padding: '20px',
+        top: 0,
         width: '210mm',
+        background: '#ffffff',
+        color: '#000000',
+        padding: '24px',
+        fontFamily: 'Arial, sans-serif',
+        fontSize: '12px',
       }}
     >
-      <h1 style={{ fontSize: 20, fontWeight: 'bold' }}>
+      <h1 style={{ fontSize: 18, marginBottom: 16 }}>
         Vairuotojo darbo ataskaita
       </h1>
 
-      <p>Vardas: {props.name || '-'}</p>
-      <p>Pavardė: {props.surname || '-'}</p>
-      <p>Nuvažiuoti km: {props.km || '-'}</p>
-      <p>
-        Pakrovimai terminale: {props.loads || '-'} ({props.loadHours} val.)
-      </p>
-      <p>Degalinės: {props.stations || '-'}</p>
-      <p>Papildomi darbai: {props.extraWorkDesc || '-'}</p>
-      <p>Papildomo darbo valandos: {props.extraHours || '-'}</p>
+      <p><b>Vardas:</b> {name}</p>
+      <p><b>Pavardė:</b> {surname}</p>
+      <p><b>Nuvažiuoti km:</b> {km}</p>
+      <p><b>Pakrovimai terminale:</b> {loads} ({loadHours} val.)</p>
+      <p><b>Degalinės:</b> {stations}</p>
 
-      <p style={{ fontWeight: 'bold', marginTop: 10 }}>
-        Bendra alga: {props.total.toFixed(2)} €
+      {extraWorkDesc && (
+        <p><b>Papildomi darbai:</b> {extraWorkDesc}</p>
+      )}
+
+      {extraHours !== '' && (
+        <p><b>Papildomo darbo valandos:</b> {extraHours}</p>
+      )}
+
+      <hr style={{ margin: '16px 0' }} />
+
+      <h2 style={{ fontSize: 14, marginBottom: 8 }}>Algos sudėtis</h2>
+
+      <p>KM: {kmPay.toFixed(2)} €</p>
+      <p>Terminalai: {loadPay.toFixed(2)} €</p>
+      <p>Degalinės: {stationPay.toFixed(2)} €</p>
+      <p>Papildomi darbai: {extraPay.toFixed(2)} €</p>
+
+      <hr style={{ margin: '12px 0' }} />
+
+      <p style={{ fontSize: 14, fontWeight: 'bold' }}>
+        Bendra alga: {total.toFixed(2)} €
       </p>
     </div>
   );
