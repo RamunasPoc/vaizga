@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Vaizga",
-  description: "Algos skaičiuoklė vežėjams",
+  description: "Algos skaičiuoklė vairuotojams",
   icons: {
     icon: "/LOGO.png",
     shortcut: "/LOGO.png",
