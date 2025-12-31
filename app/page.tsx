@@ -24,7 +24,7 @@ export default function Page() {
   const [extraHours, setExtraHours] = useState<number | ''>('');
 
   // Algų skaičiavimai
-  const kmPay = km !== '' ? (Number(km) / 100) * 11 : 0;
+  const kmPay = km !== '' ? (Number(km) / 100) * 11.4 : 0;
   const loadHours = loads !== '' ? Number(loads) * 2 : 0; // pakrovimas + iškrovimas
   const loadPay = loadHours * 7.6;
   const stationPay = stations !== '' ? (Number(stations) * 20 / 60) * 7.6 : 0;
