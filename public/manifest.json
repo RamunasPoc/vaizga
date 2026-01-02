@@ -1,7 +1,7 @@
 {
   "name": "Algų Skaičiuoklė",
   "short_name": "Alga",
-  "start_url": "./index.html",
+  "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#4a90e2",
