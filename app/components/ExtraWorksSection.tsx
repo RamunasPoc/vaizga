@@ -23,7 +23,7 @@ export default function ExtraWorksSection({
   removeExtraWork,
 }: Props) {
   return (
-    <Section title="Papildomi darbai (pagal dienas)">
+    <Section title="Kiti papildomi darbai arba labai ilgi pakrovimai (iškrovimai) (virš 1 val.) prašome nurodyti data ir aprašymą">
       {extraWorks.map((work, index) => (
         <div
           key={index}
