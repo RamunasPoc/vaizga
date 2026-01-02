@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next"; // Pridėtas Viewport
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
+import { Analytics } from "@vercel/analytics/next"
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
