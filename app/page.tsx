@@ -1,38 +1,23 @@
 'use client';
 
-import { useState } from 'react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
 import Section from './components/Section';
-import SalaryHeader from './components/SalaryHeader';
 import TextInput from './components/inputs/TextInput';
 import NumberInput from './components/inputs/NumberInput';
-import TextareaInput from './components/inputs/TextareaInput';
-import HiddenReport from './components/HiddenReport';
+import ExtraWorksSection from './components/ExtraWorksSection';
 import SalaryBreakdown from './components/SalaryBreakdown';
+import SalaryHeader from './components/SalaryHeader';
+import SalaryActions from './components/SalaryActions';
+import HiddenReport from './components/HiddenReport';
+
+import { useSalaryCalculator } from './hooks/useSalaryCalculator';
 
 export default function Page() {
-  const [name, setName] = useState('');
-  const [surname, setSurname] = useState('');
+  const calc = useSalaryCalculator();
 
-  const [km, setKm] = useState<number | ''>('');
-  const [loads, setLoads] = useState<number | ''>('');
-  const [stations, setStations] = useState<number | ''>('');
-
-  const [extraWorkDesc, setExtraWorkDesc] = useState('');
-  const [extraHours, setExtraHours] = useState<number | ''>('');
-
-  // Algų skaičiavimai
-  const kmPay = km !== '' ? (Number(km) / 100) * 11.4 : 0;
-  const loadHours = loads !== '' ? Number(loads) * 2 : 0; // pakrovimas + iškrovimas
-  const loadPay = loadHours * 7.6;
-  const stationPay = stations !== '' ? (Number(stations) * 20 / 60) * 7.6 : 0;
-  const extraPay = extraHours !== '' ? Number(extraHours) * 7.6 : 0;
-
-  const total = kmPay + loadPay + stationPay + extraPay;
-
-  // PDF generavimas
+  // 📄 PDF generavimas
   const generatePDF = async () => {
     const el = document.getElementById('report');
     if (!el) return;
@@ -41,83 +26,77 @@ export default function Page() {
     const img = canvas.toDataURL('image/png');
 
     const pdf = new jsPDF('p', 'mm', 'a4');
-    const w = pdf.internal.pageSize.getWidth();
-    const h = (canvas.height * w) / canvas.width;
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const pageHeight = (canvas.height * pageWidth) / canvas.width;
 
-    pdf.addImage(img, 'PNG', 0, 0, w, h);
-    pdf.save(`darbo-ataskaita-${name}-${surname}.pdf`);
+    pdf.addImage(img, 'PNG', 0, 0, pageWidth, pageHeight);
+    pdf.save(`darbo-ataskaita-${calc.name}-${calc.surname}.pdf`);
   };
 
   return (
     <main className="min-h-screen bg-gray-900 text-white p-4 space-y-6">
-      <SalaryHeader total={total} />
+      {/* Header su bendru atlyginimu */}
+      <SalaryHeader total={calc.total} />
 
       {/* Vairuotojas */}
       <Section title="Vairuotojas">
-        <TextInput label="Vardas" value={name} setValue={setName} icon="👤" />
-        <TextInput label="Pavardė" value={surname} setValue={setSurname} icon="👤" />
+        <TextInput
+          label="Vardas"
+          value={calc.name}
+          setValue={(v: string) => calc.setName(v)}
+          icon="👤"
+        />
+        <TextInput
+          label="Pavardė"
+          value={calc.surname}
+          setValue={(v: string) => calc.setSurname(v)}
+          icon="👤"
+        />
       </Section>
 
       {/* Pagrindiniai darbai */}
       <Section title="Pagrindiniai darbai">
-        <NumberInput label="Nuvažiuoti km" value={km} setValue={setKm} icon="🛣️" />
+        <NumberInput
+          label="Nuvažiuoti km"
+          value={calc.km}
+          setValue={(v: number | '') => calc.setKm(v)}
+          icon="🛣️"
+        />
         <NumberInput
           label="Pakrovimai terminale"
-          value={loads}
-          setValue={setLoads}
+          value={calc.loads}
+          setValue={(v: number | '') => calc.setLoads(v)}
           icon="📦"
         />
-        <NumberInput label="Degalinės" value={stations} setValue={setStations} icon="⛽" />
+        <NumberInput
+          label="Degalinės"
+          value={calc.stations}
+          setValue={(v: number | '') => calc.setStations(v)}
+          icon="⛽"
+        />
       </Section>
 
       {/* Papildomi darbai */}
-      <Section title="Papildomi darbai">
-        <TextareaInput
-          label="Papildomų darbų aprašymas"
-          value={extraWorkDesc}
-          setValue={setExtraWorkDesc}
-          icon="📝"
-        />
-        <NumberInput
-          label="Papildomo darbo valandos"
-          value={extraHours}
-          setValue={setExtraHours}
-          icon="⏱️"
-        />
-      </Section>
+      <ExtraWorksSection
+        extraWorks={calc.extraWorks}
+        addExtraWork={calc.addExtraWork}
+        updateExtraWork={calc.updateExtraWork}
+        removeExtraWork={calc.removeExtraWork}
+      />
 
-      {/* Algos sudėtis */}
+      {/* Atlyginimo skaičiavimas */}
       <SalaryBreakdown
-        kmPay={kmPay}
-        loadPay={loadPay}
-        stationPay={stationPay}
-        extraPay={extraPay}
+        kmPay={calc.kmPay}
+        loadPay={calc.loadPay}
+        stationPay={calc.stationPay}
+        extraPay={calc.extraPay}
       />
 
-      {/* Paslėptas PDF ataskaitos komponentas */}
-      <HiddenReport
-        name={name}
-        surname={surname}
-        km={km}
-        loads={loads}
-        stations={stations}
-        extraWorkDesc={extraWorkDesc}
-        extraHours={extraHours}
-        loadHours={loadHours}
-        total={total}
-        kmPay={kmPay}
-        loadPay={loadPay}
-        stationPay={stationPay}
-        extraPay={extraPay}
-      />
+      {/* Paslėpta ataskaita PDF */}
+      <HiddenReport {...calc} />
 
-      {/* PDF mygtukas */}
-      <button
-        onClick={generatePDF}
-        className="w-full bg-blue-600 hover:bg-blue-700 transition p-4 rounded-xl text-lg font-bold"
-      >
-        📄 Generuoti PDF
-      </button>
+      {/* Veiksmai */}
+      <SalaryActions onGeneratePDF={generatePDF} />
     </main>
   );
 }

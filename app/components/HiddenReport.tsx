@@ -1,19 +1,6 @@
-interface Props {
-  name: string;
-  surname: string;
-  km: number | '';
-  loads: number | '';
-  stations: number | '';
-  extraWorkDesc: string;
-  extraHours: number | '';
-  loadHours: number;
-  total: number;
+'use client';
 
-  kmPay: number;
-  loadPay: number;
-  stationPay: number;
-  extraPay: number;
-}
+import { SalaryCalculatorState } from '../hooks/useSalaryCalculator';
 
 export default function HiddenReport({
   name,
@@ -21,15 +8,14 @@ export default function HiddenReport({
   km,
   loads,
   stations,
-  extraWorkDesc,
-  extraHours,
+  extraWorks,
   loadHours,
   total,
   kmPay,
   loadPay,
   stationPay,
   extraPay,
-}: Props) {
+}: SalaryCalculatorState) {
   return (
     <div
       id="report"
@@ -55,12 +41,17 @@ export default function HiddenReport({
       <p><b>Pakrovimai terminale:</b> {loads} ({loadHours} val.)</p>
       <p><b>Degalinės:</b> {stations}</p>
 
-      {extraWorkDesc && (
-        <p><b>Papildomi darbai:</b> {extraWorkDesc}</p>
-      )}
-
-      {extraHours !== '' && (
-        <p><b>Papildomo darbo valandos:</b> {extraHours}</p>
+      {extraWorks.length > 0 && (
+        <div style={{ marginTop: 12 }}>
+          <b>Papildomi darbai:</b>
+          <ul style={{ marginLeft: 20 }}>
+            {extraWorks.map((w, i) => (
+              <li key={i}>
+                {w.date ? `${w.date}: ` : ''}{w.description} {w.hours !== '' ? `(${w.hours} val.)` : ''}
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       <hr style={{ margin: '16px 0' }} />

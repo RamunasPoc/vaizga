@@ -1,40 +1,23 @@
 'use client';
 
-import { Dispatch, SetStateAction } from 'react';
-
-interface Props {
+type Props = {
   label: string;
   value: string;
-  setValue: Dispatch<SetStateAction<string>>;
+  setValue: (val: string) => void;
   icon?: string;
-}
+};
 
 export default function TextInput({ label, value, setValue, icon }: Props) {
   return (
-    <div className="space-y-1">
-      <label className="text-sm text-gray-300">{label}</label>
-
-      <div className="relative">
-        {icon && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
-            {icon}
-          </span>
-        )}
-
+    <div className="flex flex-col space-y-1">
+      <label className="text-gray-300">{label}</label>
+      <div className="flex items-center bg-gray-700 p-2 rounded-lg">
+        {icon && <span className="mr-2">{icon}</span>}
         <input
           type="text"
           value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder="Įveskite tekstą"
-          className={`
-            w-full p-3 rounded-xl
-            bg-gray-800
-            text-white
-            placeholder-gray-400
-            border border-gray-700
-            focus:outline-none focus:ring-2 focus:ring-blue-500
-            ${icon ? 'pl-10' : ''}
-          `}
+          onChange={(e) => setValue(e.target.value)} // tik value
+          className="bg-gray-700 flex-1 outline-none text-white p-2 rounded-lg"
         />
       </div>
     </div>

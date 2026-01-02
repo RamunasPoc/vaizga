@@ -1,49 +1,26 @@
 'use client';
 
-import { Dispatch, SetStateAction } from 'react';
-
-interface Props {
+type Props = {
   label: string;
   value: number | '';
-  setValue: Dispatch<SetStateAction<number | ''>>;
-  icon?: string; // km | € | ⏱
-}
+  setValue: (val: number | '') => void;
+  icon?: string;
+};
 
-export default function NumberInput({
-  label,
-  value,
-  setValue,
-  icon,
-}: Props) {
+export default function NumberInput({ label, value, setValue, icon }: Props) {
   return (
-    <div className="space-y-1">
-      <label className="text-sm text-gray-300">{label}</label>
-
-      <div className="relative">
-        {icon && (
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">
-            {icon}
-          </span>
-        )}
-
+    <div className="flex flex-col space-y-1">
+      <label className="text-gray-300">{label}</label>
+      <div className="flex items-center bg-gray-700 p-2 rounded-lg">
+        {icon && <span className="mr-2">{icon}</span>}
         <input
-          type="text"
-          inputMode="numeric"
-          pattern="[0-9]*"
+          type="number"
           value={value}
-          onChange={(e) =>
-            setValue(e.target.value === '' ? '' : Number(e.target.value))
-          }
-          placeholder="0"
-          className={`
-            w-full p-3 rounded-xl
-            bg-gray-800
-            text-white
-            placeholder-gray-500
-            border border-gray-700
-            focus:outline-none focus:ring-2 focus:ring-blue-500
-            ${icon ? 'pl-10' : ''}
-          `}
+          onChange={(e) => {
+            const val = e.target.value;
+            setValue(val === '' ? '' : Number(val)); // tik value
+          }}
+          className="bg-gray-700 flex-1 outline-none text-white p-2 rounded-lg"
         />
       </div>
     </div>
