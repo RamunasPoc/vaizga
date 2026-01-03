@@ -19,21 +19,19 @@ import { useSalaryCalculator } from './hooks/useSalaryCalculator';
 export default function Page() {
   const calc = useSalaryCalculator();
 
-  // 🗑️ Funkcija visos formos išvalymui
+  // 🗑️ Išvalyti viską
   const handleReset = () => {
-    if (window.confirm("Ar tikrai norite išvalyti visus įvestus duomenis ir parašą?")) {
-      // Paprasčiausias būdas išvalyti viską - perkrauti puslapį, 
-      // nes LocalStorage nenaudojame.
+    if (window.confirm("Ar tikrai norite išvalyti visus įvestus duomenis?")) {
       window.location.reload();
     }
   };
 
-  // 📄 Funkcija PDF atsisiuntimui
+  // 📄 Generuoti PDF
   const generatePDF = async () => {
     const el = document.getElementById('report');
     if (!el) return;
 
-    // Pridedame nedidelę pauzę, kad parašas spėtų „pasikrauti“ HiddenReport viduje
+    // Pauzė užtikrina, kad visi elementai (įskaitant parašą, jei jis yra) pasikrautų
     await new Promise(r => setTimeout(r, 300));
 
     const canvas = await html2canvas(el, { 
@@ -51,18 +49,13 @@ export default function Page() {
     pdf.save(`ataskaita-${calc.name || 'vairuotojas'}.pdf`);
   };
 
-  // 📲 Funkcija dalinimuisi
+  // 📲 Dalintis (PNG formatu geriausiam suderinamumui)
   const handleShare = async () => {
     const el = document.getElementById('report');
     if (!el) return;
 
-    if (!calc.signature) {
-      alert("Prašome pasirašyti prieš siunčiant ataskaitą!");
-      return;
-    }
-
     try {
-      // Pauzė užtikrina, kad parašas pateks į nuotrauką
+      // Palaukiame akimirką, kol paslėptas DOM susirendina
       await new Promise(r => setTimeout(r, 300));
 
       const canvas = await html2canvas(el, { 
@@ -75,18 +68,21 @@ export default function Page() {
         if (!blob) return;
         const file = new File([blob], `ataskaita.png`, { type: 'image/png' });
 
+        // Naudojame Web Share API
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({
             files: [file],
             title: 'Darbo ataskaita',
-            text: `Vairuotojo ${calc.name} ataskaita`,
+            text: `Vairuotojo ${calc.name} ${calc.surname} ataskaita`,
           });
         } else {
+          // Jei dalintis neleidžia (pvz. senas telefonas), atsisiunčiame PDF
           generatePDF();
         }
       }, 'image/png');
     } catch (error) {
-      console.error('Klaida:', error);
+      console.error('Klaida dalinantis:', error);
+      alert("Nepavyko pasidalinti. Pabandykite atsisiųsti PDF.");
     }
   };
 
@@ -101,7 +97,7 @@ export default function Page() {
 
       <Section title="Pagrindiniai darbai">
         <NumberInput label="Nuvažiuoti km" value={calc.km} setValue={calc.setKm} icon="🛣️" />
-        <NumberInput label="Pakrovimai terminale (vnt.)" value={calc.loads} setValue={calc.setLoads} icon="📦" />
+        <NumberInput label="Pakrovimai terminale" value={calc.loads} setValue={calc.setLoads} icon="📦" />
         <div className="space-y-1">
           <NumberInput label="Degalinės (20 min.)" value={calc.stations} setValue={calc.setStations} icon="⛽" />
         </div>
@@ -121,7 +117,6 @@ export default function Page() {
         removeHolidayWork={calc.removeHolidayWork} 
       />
 
-      {/* 🖋️ Parašo sekcija */}
       <Section title="Patvirtinimas">
         <SignaturePad 
           signature={calc.signature} 
@@ -137,9 +132,9 @@ export default function Page() {
         holidayPay={calc.holidayPay} 
       />
 
+      {/* Paslėptas komponentas PDF generavimui */}
       <HiddenReport {...calc} />
 
-      {/* Paduodame visas 3 funkcijas mygtukams */}
       <SalaryActions 
         onGeneratePDF={generatePDF} 
         onShare={handleShare} 
@@ -147,7 +142,7 @@ export default function Page() {
       />
       
       <p className="text-center text-gray-600 text-[10px] pt-4 uppercase tracking-widest">
-        v1.5 | Parašo fiksavimas pataisytas
+        v1.6 – Vaizga App)
       </p>
     </main>
   );
