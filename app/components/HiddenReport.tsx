@@ -9,12 +9,14 @@ export default function HiddenReport({
   loads,
   stations,
   extraWorks,
+  holidayWorks,
   loadHours,
   total,
   kmPay,
   loadPay,
   stationPay,
   extraPay,
+  holidayPay,
 }: SalaryCalculatorState) {
   return (
     <div
@@ -41,13 +43,30 @@ export default function HiddenReport({
       <p><b>Pakrovimai terminale:</b> {loads} ({loadHours} val.)</p>
       <p><b>Degalinės:</b> {stations}</p>
 
+      {/* Papildomi darbai */}
       {extraWorks.length > 0 && (
         <div style={{ marginTop: 12 }}>
           <b>Papildomi darbai:</b>
           <ul style={{ marginLeft: 20 }}>
             {extraWorks.map((w, i) => (
               <li key={i}>
-                {w.date ? `${w.date}: ` : ''}{w.description} {w.hours !== '' ? `(${w.hours} val.)` : ''}
+                {w.date ? `${w.date}: ` : ''}
+                {w.description}
+                {w.hours !== '' ? ` (${w.hours} val.)` : ''}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {/* Šventinės dienos */}
+      {holidayWorks.length > 0 && (
+        <div style={{ marginTop: 12 }}>
+          <b>Šventinės dienos (mokama dvigubai):</b>
+          <ul style={{ marginLeft: 20 }}>
+            {holidayWorks.map((d, i) => (
+              <li key={i}>
+                📅 {d.date} — {d.km} km, {d.loads} pakrov., {d.stations} deg.
               </li>
             ))}
           </ul>
@@ -62,6 +81,10 @@ export default function HiddenReport({
       <p>Terminalai: {loadPay.toFixed(2)} €</p>
       <p>Degalinės: {stationPay.toFixed(2)} €</p>
       <p>Papildomi darbai: {extraPay.toFixed(2)} €</p>
+
+      {holidayPay > 0 && (
+        <p>Šventinės dienos: {holidayPay.toFixed(2)} €</p>
+      )}
 
       <hr style={{ margin: '12px 0' }} />
 

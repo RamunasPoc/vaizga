@@ -1,6 +1,10 @@
 'use client';
 
-import { useState, SetStateAction } from 'react';
+import { useState } from 'react';
+
+/* =======================
+   TIPAI
+======================= */
 
 export type ExtraWork = {
   date: string;
@@ -8,9 +12,13 @@ export type ExtraWork = {
   hours: number | '';
 };
 
-/**
- * VISAS calculator state tipas
- */
+export type HolidayWork = {
+  date: string;
+  km: number | '';
+  loads: number | '';
+  stations: number | '';
+};
+
 export interface SalaryCalculatorState {
   name: string;
   surname: string;
@@ -24,22 +32,48 @@ export interface SalaryCalculatorState {
   setLoads: (v: number | '') => void;
   setStations: (v: number | '') => void;
 
+  loadHours: number;
+
   extraWorks: ExtraWork[];
   addExtraWork: () => void;
   updateExtraWork: (
     index: number,
     field: keyof ExtraWork,
-    value: SetStateAction<string | number | ''>
+    value: string | number | ''
   ) => void;
   removeExtraWork: (index: number) => void;
+
+  holidayWorks: HolidayWork[];
+  addHolidayWork: () => void;
+  updateHolidayWork: (
+    index: number,
+    field: keyof HolidayWork,
+    value: string | number | ''
+  ) => void;
+  removeHolidayWork: (index: number) => void;
 
   kmPay: number;
   loadPay: number;
   stationPay: number;
   extraPay: number;
-  loadHours: number;
+  holidayPay: number;
   total: number;
 }
+
+/* =======================
+   TARIFAI (VIENOJE VIETOJE)
+======================= */
+
+const RATES = {
+  KM: 11.4 / 100,
+  LOAD_HOURS: 2,
+  HOURLY: 7.6,
+  STATION_MIN: 20,
+};
+
+/* =======================
+   HOOK
+======================= */
 
 export function useSalaryCalculator(): SalaryCalculatorState {
   const [name, setName] = useState('');
@@ -50,24 +84,33 @@ export function useSalaryCalculator(): SalaryCalculatorState {
   const [stations, setStations] = useState<number | ''>('');
 
   const [extraWorks, setExtraWorks] = useState<ExtraWork[]>([]);
+  const [holidayWorks, setHolidayWorks] = useState<HolidayWork[]>([]);
 
-  // 🔢 Skaičiavimai
-  const kmPay = km !== '' ? (Number(km) / 100) * 11.4 : 0;
+  /* =======================
+     PAGRINDINIAI SKAIČIAVIMAI
+  ======================= */
 
-  const loadHours = loads !== '' ? Number(loads) * 2 : 0;
-  const loadPay = loadHours * 7.6;
+  const kmPay = km !== '' ? Number(km) * RATES.KM : 0;
+
+  const loadHours =
+    loads !== '' ? Number(loads) * RATES.LOAD_HOURS : 0;
+
+  const loadPay = loadHours * RATES.HOURLY;
 
   const stationPay =
-    stations !== '' ? (Number(stations) * 20 / 60) * 7.6 : 0;
+    stations !== ''
+      ? (Number(stations) * RATES.STATION_MIN) / 60 * RATES.HOURLY
+      : 0;
+
+  /* =======================
+     PAPILDOMI DARBAI
+  ======================= */
 
   const extraPay = extraWorks.reduce((sum, w) => {
     if (w.hours === '') return sum;
-    return sum + Number(w.hours) * 7.6;
+    return sum + Number(w.hours) * RATES.HOURLY;
   }, 0);
 
-  const total = kmPay + loadPay + stationPay + extraPay;
-
-  // ➕ Papildomi darbai
   const addExtraWork = () =>
     setExtraWorks((prev) => [
       ...prev,
@@ -77,26 +120,74 @@ export function useSalaryCalculator(): SalaryCalculatorState {
   const updateExtraWork = (
     index: number,
     field: keyof ExtraWork,
-    value: SetStateAction<string | number | ''>
+    value: string | number | ''
   ) => {
     setExtraWorks((prev) => {
       const updated = [...prev];
-      const current = updated[index][field];
-
-      updated[index] = {
-        ...updated[index],
-        [field]:
-          typeof value === 'function'
-            ? value(current as any)
-            : value,
-      };
-
+      updated[index] = { ...updated[index], [field]: value };
       return updated;
     });
   };
 
   const removeExtraWork = (index: number) =>
     setExtraWorks((prev) => prev.filter((_, i) => i !== index));
+
+  /* =======================
+     ŠVENTINĖS DIENOS (x2)
+  ======================= */
+
+  const holidayPay = holidayWorks.reduce((sum, day) => {
+    const kmPay = day.km !== '' ? Number(day.km) * RATES.KM : 0;
+
+    const loadPay =
+      day.loads !== ''
+        ? Number(day.loads) * RATES.LOAD_HOURS * RATES.HOURLY
+        : 0;
+
+    const stationPay =
+      day.stations !== ''
+        ? (Number(day.stations) * RATES.STATION_MIN) / 60 * RATES.HOURLY
+        : 0;
+
+    const dayTotal = kmPay + loadPay + stationPay;
+    return sum + dayTotal * 2; // 🔥 dvigubas apmokėjimas
+  }, 0);
+
+  const addHolidayWork = () =>
+    setHolidayWorks((prev) => [
+      ...prev,
+      { date: '', km: '', loads: '', stations: '' },
+    ]);
+
+  const updateHolidayWork = (
+    index: number,
+    field: keyof HolidayWork,
+    value: string | number | ''
+  ) => {
+    setHolidayWorks((prev) => {
+      const updated = [...prev];
+      updated[index] = { ...updated[index], [field]: value };
+      return updated;
+    });
+  };
+
+  const removeHolidayWork = (index: number) =>
+    setHolidayWorks((prev) => prev.filter((_, i) => i !== index));
+
+  /* =======================
+     GALUTINĖ ALGA
+  ======================= */
+
+  const total =
+    kmPay +
+    loadPay +
+    stationPay +
+    extraPay +
+    holidayPay;
+
+  /* =======================
+     RETURN
+  ======================= */
 
   return {
     name,
@@ -111,16 +202,23 @@ export function useSalaryCalculator(): SalaryCalculatorState {
     setLoads,
     setStations,
 
+    loadHours,
+
     extraWorks,
     addExtraWork,
     updateExtraWork,
     removeExtraWork,
 
+    holidayWorks,
+    addHolidayWork,
+    updateHolidayWork,
+    removeHolidayWork,
+
     kmPay,
     loadPay,
     stationPay,
     extraPay,
-    loadHours,
+    holidayPay,
     total,
   };
 }
