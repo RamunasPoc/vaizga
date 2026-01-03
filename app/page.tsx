@@ -7,6 +7,7 @@ import Section from './components/Section';
 import TextInput from './components/inputs/TextInput';
 import NumberInput from './components/inputs/NumberInput';
 import ExtraWorksSection from './components/ExtraWorksSection';
+import HolidayWorksSection from './components/HolidayWorksSection'; // 1. Importuojame naują sekciją
 import SalaryBreakdown from './components/SalaryBreakdown';
 import SalaryHeader from './components/SalaryHeader';
 import SalaryActions from './components/SalaryActions';
@@ -84,12 +85,23 @@ export default function Page() {
         removeExtraWork={calc.removeExtraWork}
       />
 
+      {/* 2. Pridedame Šventinių darbų sekciją čia */}
+      <HolidayWorksSection
+        holidayWorks={calc.holidayWorks}
+        addHolidayWork={calc.addHolidayWork}
+        updateHolidayWork={calc.updateHolidayWork}
+        removeHolidayWork={calc.removeHolidayWork}
+      />
+
       {/* Atlyginimo skaičiavimas */}
       <SalaryBreakdown
         kmPay={calc.kmPay}
         loadPay={calc.loadPay}
         stationPay={calc.stationPay}
         extraPay={calc.extraPay}
+        // Patarimas: jei SalaryBreakdown dar neturi holidayPay, 
+        // reikės jį pridėti huke ir perduoti čia
+        holidayPay={calc.holidayPay} 
       />
 
       {/* Paslėpta ataskaita PDF */}

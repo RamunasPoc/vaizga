@@ -65,10 +65,10 @@ export interface SalaryCalculatorState {
 ======================= */
 
 const RATES = {
-  KM: 11.4 / 100,
-  LOAD_HOURS: 2,
-  HOURLY: 7.6,
-  STATION_MIN: 20,
+  KM: 11.4 / 100,      // 0.114 €/km
+  LOAD_HOURS: 2,       // 2 valandos už pakrovimą
+  HOURLY: 7.6,         // Valandinis tarifas
+  STATION_MIN: 20,     // 20 min už degalinę
 };
 
 /* =======================
@@ -91,15 +91,12 @@ export function useSalaryCalculator(): SalaryCalculatorState {
   ======================= */
 
   const kmPay = km !== '' ? Number(km) * RATES.KM : 0;
-
-  const loadHours =
-    loads !== '' ? Number(loads) * RATES.LOAD_HOURS : 0;
-
+  const loadHours = loads !== '' ? Number(loads) * RATES.LOAD_HOURS : 0;
   const loadPay = loadHours * RATES.HOURLY;
 
   const stationPay =
     stations !== ''
-      ? (Number(stations) * RATES.STATION_MIN) / 60 * RATES.HOURLY
+      ? (Number(stations) * RATES.STATION_MIN / 60) * RATES.HOURLY
       : 0;
 
   /* =======================
@@ -112,16 +109,9 @@ export function useSalaryCalculator(): SalaryCalculatorState {
   }, 0);
 
   const addExtraWork = () =>
-    setExtraWorks((prev) => [
-      ...prev,
-      { date: '', description: '', hours: '' },
-    ]);
+    setExtraWorks((prev) => [...prev, { date: '', description: '', hours: '' }]);
 
-  const updateExtraWork = (
-    index: number,
-    field: keyof ExtraWork,
-    value: string | number | ''
-  ) => {
+  const updateExtraWork = (index: number, field: keyof ExtraWork, value: string | number | '') => {
     setExtraWorks((prev) => {
       const updated = [...prev];
       updated[index] = { ...updated[index], [field]: value };
@@ -137,33 +127,20 @@ export function useSalaryCalculator(): SalaryCalculatorState {
   ======================= */
 
   const holidayPay = holidayWorks.reduce((sum, day) => {
-    const kmPay = day.km !== '' ? Number(day.km) * RATES.KM : 0;
+    // 1. Skaičiuojame tos dienos uždarbį standartiniu tarifu
+    const dayKmPay = day.km !== '' ? Number(day.km) * RATES.KM : 0;
+    const dayLoadPay = day.loads !== '' ? Number(day.loads) * RATES.LOAD_HOURS * RATES.HOURLY : 0;
+    const dayStationPay = day.stations !== '' ? (Number(day.stations) * RATES.STATION_MIN / 60) * RATES.HOURLY : 0;
 
-    const loadPay =
-      day.loads !== ''
-        ? Number(day.loads) * RATES.LOAD_HOURS * RATES.HOURLY
-        : 0;
-
-    const stationPay =
-      day.stations !== ''
-        ? (Number(day.stations) * RATES.STATION_MIN) / 60 * RATES.HOURLY
-        : 0;
-
-    const dayTotal = kmPay + loadPay + stationPay;
-    return sum + dayTotal * 2; // 🔥 dvigubas apmokėjimas
+    // 2. Kadangi tai x2, pridedame tiek pat, kiek uždirbta (100% priedas)
+    const dayTotal = dayKmPay + dayLoadPay + dayStationPay;
+    return sum + (dayTotal * 2); 
   }, 0);
 
   const addHolidayWork = () =>
-    setHolidayWorks((prev) => [
-      ...prev,
-      { date: '', km: '', loads: '', stations: '' },
-    ]);
+    setHolidayWorks((prev) => [...prev, { date: '', km: '', loads: '', stations: '' }]);
 
-  const updateHolidayWork = (
-    index: number,
-    field: keyof HolidayWork,
-    value: string | number | ''
-  ) => {
+  const updateHolidayWork = (index: number, field: keyof HolidayWork, value: string | number | '') => {
     setHolidayWorks((prev) => {
       const updated = [...prev];
       updated[index] = { ...updated[index], [field]: value };
@@ -178,47 +155,14 @@ export function useSalaryCalculator(): SalaryCalculatorState {
      GALUTINĖ ALGA
   ======================= */
 
-  const total =
-    kmPay +
-    loadPay +
-    stationPay +
-    extraPay +
-    holidayPay;
-
-  /* =======================
-     RETURN
-  ======================= */
+  const total = kmPay + loadPay + stationPay + extraPay + holidayPay;
 
   return {
-    name,
-    surname,
-    setName,
-    setSurname,
-
-    km,
-    loads,
-    stations,
-    setKm,
-    setLoads,
-    setStations,
-
+    name, surname, setName, setSurname,
+    km, loads, stations, setKm, setLoads, setStations,
     loadHours,
-
-    extraWorks,
-    addExtraWork,
-    updateExtraWork,
-    removeExtraWork,
-
-    holidayWorks,
-    addHolidayWork,
-    updateHolidayWork,
-    removeHolidayWork,
-
-    kmPay,
-    loadPay,
-    stationPay,
-    extraPay,
-    holidayPay,
-    total,
+    extraWorks, addExtraWork, updateExtraWork, removeExtraWork,
+    holidayWorks, addHolidayWork, updateHolidayWork, removeHolidayWork,
+    kmPay, loadPay, stationPay, extraPay, holidayPay, total,
   };
 }
