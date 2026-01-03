@@ -7,7 +7,7 @@ import Section from './components/Section';
 import TextInput from './components/inputs/TextInput';
 import NumberInput from './components/inputs/NumberInput';
 import ExtraWorksSection from './components/ExtraWorksSection';
-import HolidayWorksSection from './components/HolidayWorksSection'; // 1. Importuojame naują sekciją
+import HolidayWorksSection from './components/HolidayWorksSection';
 import SalaryBreakdown from './components/SalaryBreakdown';
 import SalaryHeader from './components/SalaryHeader';
 import SalaryActions from './components/SalaryActions';
@@ -35,8 +35,8 @@ export default function Page() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-900 text-white p-4 space-y-6">
-      {/* Header su bendru atlyginimu */}
+    <main className="min-h-screen bg-gray-900 text-white p-4 space-y-6 pb-10">
+      {/* Header su bendru atlyginimu - gali pridėti 'sticky top-0 z-10', jei nori, kad sektų vaizdą */}
       <SalaryHeader total={calc.total} />
 
       {/* Vairuotojas */}
@@ -64,20 +64,28 @@ export default function Page() {
           icon="🛣️"
         />
         <NumberInput
-          label="Pakrovimai terminale"
+          label="Pakrovimai terminale (2 val.)"
           value={calc.loads}
           setValue={(v: number | '') => calc.setLoads(v)}
           icon="📦"
         />
-        <NumberInput
-          label="Degalinės"
-          value={calc.stations}
-          setValue={(v: number | '') => calc.setStations(v)}
-          icon="⛽"
-        />
+        
+        <div className="space-y-1">
+          <NumberInput
+            label="Degalinės (20 min.)"
+            value={calc.stations}
+            setValue={(v: number | '') => calc.setStations(v)}
+            icon="⛽"
+          />
+          {calc.stations !== '' && Number(calc.stations) > 0 && (
+            <p className="text-[10px] text-blue-400 ml-12 italic animate-pulse">
+              ⏱️ Sukaupta laiko: {(Number(calc.stations) * 20 / 60).toFixed(2)} val.
+            </p>
+          )}
+        </div>
       </Section>
 
-      {/* Papildomi darbai */}
+      {/* Papildomi darbai (Interaktyvūs su animacijomis) */}
       <ExtraWorksSection
         extraWorks={calc.extraWorks}
         addExtraWork={calc.addExtraWork}
@@ -85,7 +93,7 @@ export default function Page() {
         removeExtraWork={calc.removeExtraWork}
       />
 
-      {/* 2. Pridedame Šventinių darbų sekciją čia */}
+      {/* Šventinių darbų sekcija (Interaktyvi su x2 indikacija) */}
       <HolidayWorksSection
         holidayWorks={calc.holidayWorks}
         addHolidayWork={calc.addHolidayWork}
@@ -93,22 +101,24 @@ export default function Page() {
         removeHolidayWork={calc.removeHolidayWork}
       />
 
-      {/* Atlyginimo skaičiavimas */}
+      {/* Algos sudėtis (Suskirstymas) */}
       <SalaryBreakdown
         kmPay={calc.kmPay}
         loadPay={calc.loadPay}
         stationPay={calc.stationPay}
         extraPay={calc.extraPay}
-        // Patarimas: jei SalaryBreakdown dar neturi holidayPay, 
-        // reikės jį pridėti huke ir perduoti čia
         holidayPay={calc.holidayPay} 
       />
 
-      {/* Paslėpta ataskaita PDF */}
+      {/* Paslėpta ataskaita skirta html2canvas */}
       <HiddenReport {...calc} />
 
-      {/* Veiksmai */}
+      {/* Veiksmai: PDF generavimas ir kt. */}
       <SalaryActions onGeneratePDF={generatePDF} />
+      
+      <p className="text-center text-gray-600 text-[10px] pt-4">
+        v1.2 | PWA paruošta naudojimui neprisijungus
+      </p>
     </main>
   );
 }
