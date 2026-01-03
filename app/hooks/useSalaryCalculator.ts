@@ -32,6 +32,10 @@ export interface SalaryCalculatorState {
   setLoads: (v: number | '') => void;
   setStations: (v: number | '') => void;
 
+  // NAUJA: Naktinių pamainų būsena
+  nightShifts: number | '';
+  setNightShifts: (v: number | '') => void;
+
   loadHours: number;
 
   extraWorks: ExtraWork[];
@@ -52,7 +56,6 @@ export interface SalaryCalculatorState {
   ) => void;
   removeHolidayWork: (index: number) => void;
 
-  // Parašo būsena
   signature: string | null;
   setSignature: (v: string | null) => void;
 
@@ -61,18 +64,20 @@ export interface SalaryCalculatorState {
   stationPay: number;
   extraPay: number;
   holidayPay: number;
+  nightPay: number; // NAUJA: Apskaičiuota naktinio darbo suma
   total: number;
 }
 
 /* =======================
-   TARIFAI (VIENOJE VIETOJE)
+   TARIFAI
 ======================= */
 
 const RATES = {
-  KM: 11.4 / 100,      // 0.114 €/km
-  LOAD_HOURS: 2,       // 2 valandos už pakrovimą
-  HOURLY: 7.6,         // Valandinis tarifas
-  STATION_MIN: 20,     // 20 min už degalinę
+  KM: 11.4 / 100,      
+  LOAD_HOURS: 2,       
+  HOURLY: 7.6,         
+  STATION_MIN: 20,     
+  NIGHT_SHIFT: 20,     // 20 € už naktinę pamainą
 };
 
 /* =======================
@@ -86,11 +91,12 @@ export function useSalaryCalculator(): SalaryCalculatorState {
   const [km, setKm] = useState<number | ''>('');
   const [loads, setLoads] = useState<number | ''>('');
   const [stations, setStations] = useState<number | ''>('');
+  
+  // NAUJA: Naktinių pamainų būsena
+  const [nightShifts, setNightShifts] = useState<number | ''>('');
 
   const [extraWorks, setExtraWorks] = useState<ExtraWork[]>([]);
   const [holidayWorks, setHolidayWorks] = useState<HolidayWork[]>([]);
-  
-  // Pridedame parašo būseną (saugomas kaip Base64 string)
   const [signature, setSignature] = useState<string | null>(null);
 
   /* =======================
@@ -105,6 +111,9 @@ export function useSalaryCalculator(): SalaryCalculatorState {
     stations !== ''
       ? (Number(stations) * RATES.STATION_MIN / 60) * RATES.HOURLY
       : 0;
+
+  // NAUJA: Naktinių pamainų skaičiavimas
+  const nightPay = nightShifts !== '' ? Number(nightShifts) * RATES.NIGHT_SHIFT : 0;
 
   /* =======================
      PAPILDOMI DARBAI
@@ -160,15 +169,17 @@ export function useSalaryCalculator(): SalaryCalculatorState {
      GALUTINĖ ALGA
   ======================= */
 
-  const total = kmPay + loadPay + stationPay + extraPay + holidayPay;
+  // Į bendrą sumą įtraukiamas nightPay
+  const total = kmPay + loadPay + stationPay + extraPay + holidayPay + nightPay;
 
   return {
     name, surname, setName, setSurname,
     km, loads, stations, setKm, setLoads, setStations,
+    nightShifts, setNightShifts, // NAUJA
     loadHours,
     extraWorks, addExtraWork, updateExtraWork, removeExtraWork,
     holidayWorks, addHolidayWork, updateHolidayWork, removeHolidayWork,
-    signature, setSignature, // Grąžiname parašo funkcijas
-    kmPay, loadPay, stationPay, extraPay, holidayPay, total,
+    signature, setSignature,
+    kmPay, loadPay, stationPay, extraPay, holidayPay, nightPay, total, // NAUJA: nightPay
   };
 }

@@ -8,6 +8,7 @@ export default function HiddenReport({
   km,
   loads,
   stations,
+  nightShifts, // Pridėta
   extraWorks,
   holidayWorks,
   loadHours,
@@ -17,14 +18,13 @@ export default function HiddenReport({
   stationPay,
   extraPay,
   holidayPay,
+  nightPay,   // Pridėta
   signature,
 }: SalaryCalculatorState) {
   return (
     <div
       id="report"
       style={{
-        // PAKEITIMAS: Vietoj -9999px naudojame fixed su minimaliu matomumu,
-        // kad naršyklė priverstinai renderintų parašo img.
         position: 'fixed',
         left: '0',
         top: '0',
@@ -71,6 +71,11 @@ export default function HiddenReport({
               <td style={{ textAlign: 'right', fontWeight: 'bold' }}>
                 {stations || 0} vnt. ({(Number(stations || 0) * 20 / 60).toFixed(2)} val.)
               </td>
+            </tr>
+            {/* Pridėta naktinių pamainų eilutė */}
+            <tr style={{ borderBottom: '1px solid #f0f0f0' }}>
+              <td style={{ padding: '8px 0' }}>Naktinės pamainos (nuo 22:00 iki 06:00):</td>
+              <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{nightShifts || 0} nakt.</td>
             </tr>
           </tbody>
         </table>
@@ -143,6 +148,15 @@ export default function HiddenReport({
           <span>Pakrovimai, degalinės ir kt. laikas:</span>
           <span>{(loadPay + stationPay + extraPay).toFixed(2)} €</span>
         </div>
+        
+        {/* Pridėta naktinio darbo finansinė eilutė */}
+        {nightPay > 0 && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+            <span>Priedas už naktinį darbą ({nightShifts} nakt.):</span>
+            <span>{nightPay.toFixed(2)} €</span>
+          </div>
+        )}
+
         {holidayPay > 0 && (
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', color: '#b91c1c', fontWeight: 'bold' }}>
             <span>Papildomas priedas už šventines dienas:</span>

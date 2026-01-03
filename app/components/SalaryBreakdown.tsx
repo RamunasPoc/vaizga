@@ -5,7 +5,8 @@ interface Props {
   loadPay: number;
   stationPay: number;
   extraPay: number;
-  holidayPay: number; // Pridedame naują prop
+  holidayPay: number;
+  nightPay: number; // Pridėtas naujas prop naktiniam darbui
 }
 
 export default function SalaryBreakdown({
@@ -14,14 +15,15 @@ export default function SalaryBreakdown({
   stationPay,
   extraPay,
   holidayPay,
+  nightPay,
 }: Props) {
-  // Suskaičiuojame galutinę sumą čia pat arba galite gauti iš tėvinio komponento
-  const total = kmPay + loadPay + stationPay + extraPay + holidayPay;
+  // Į bendrą sumą įtraukiame naktinį priedą
+  const total = kmPay + loadPay + stationPay + extraPay + holidayPay + nightPay;
 
   return (
-    <div className="bg-gray-800 rounded-xl p-4 space-y-2 text-sm">
-      <h3 className="font-semibold text-base mb-3 border-b border-gray-700 pb-2">
-        Algos sudėtis
+    <div className="bg-gray-800 rounded-xl p-4 space-y-2 text-sm shadow-lg border border-gray-700">
+      <h3 className="font-semibold text-base mb-3 border-b border-gray-700 pb-2 text-gray-100">
+        Algos sudėtis (Bruto)
       </h3>
 
       <Row label="Kilometrai" value={kmPay} />
@@ -29,18 +31,30 @@ export default function SalaryBreakdown({
       <Row label="Degalinės" value={stationPay} />
       <Row label="Papildomi darbai" value={extraPay} />
       
-      {/* Pridedame eilutę šventinėms dienoms */}
+      {/* Naktinis darbas */}
       <Row 
-        label="Šventinės dienos (priedas)" 
+        label="Naktinis darbas (+20€/nakt.)" 
+        value={nightPay} 
+        isHighlight={nightPay > 0}
+        highlightColor="text-blue-400"
+      />
+      
+      {/* Šventinės dienos */}
+      <Row 
+        label="Šventinės dienos (priedas x2)" 
         value={holidayPay} 
         isHighlight={holidayPay > 0}
+        highlightColor="text-red-400"
       />
 
       <div className="pt-2 mt-2 border-t border-gray-700">
-        <div className="flex justify-between text-base font-bold text-green-400">
-          <span>Iš viso (po mokesčių):</span>
+        <div className="flex justify-between text-lg font-bold text-green-400">
+          <span>IŠ VISO:</span>
           <span>{total.toFixed(2)} €</span>
         </div>
+        <p className="text-[10px] text-gray-500 mt-1 text-right italic">
+          *Suma nurodyta prieš mokesčius (Bruto)
+        </p>
       </div>
     </div>
   );
@@ -49,18 +63,20 @@ export default function SalaryBreakdown({
 function Row({ 
   label, 
   value, 
-  isHighlight = false 
+  isHighlight = false,
+  highlightColor = "text-red-400"
 }: { 
   label: string; 
   value: number; 
-  isHighlight?: boolean 
+  isHighlight?: boolean;
+  highlightColor?: string;
 }) {
   return (
-    <div className="flex justify-between">
-      <span className={isHighlight ? "text-red-400 font-medium" : "text-gray-300"}>
+    <div className="flex justify-between py-0.5">
+      <span className={isHighlight ? `${highlightColor} font-medium` : "text-gray-400"}>
         {label}
       </span>
-      <span className={`font-medium ${isHighlight ? "text-red-400" : ""}`}>
+      <span className={`font-medium ${isHighlight ? highlightColor : "text-gray-200"}`}>
         {value > 0 ? value.toFixed(2) : '0.00'} €
       </span>
     </div>
