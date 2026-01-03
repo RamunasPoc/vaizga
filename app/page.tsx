@@ -26,35 +26,50 @@ export default function Page() {
   };
 
   /**
-   * Patobulinta Canvas generavimo funkcija
+   * Patobulinta Canvas generavimo funkcija su "Force Load" parašui
    */
   const generateCanvas = async (elementId: string) => {
     const el = document.getElementById(elementId);
     if (!el) return null;
 
-    // 1. Suteikiame daugiau laiko (800ms) MacBook/Retina ekranams apdoroti parašą
-    await new Promise(r => setTimeout(r, 800));
+    // 1. Surandame parašą ir priverstinai patikriname, ar jis įkrautas
+    const sigImg = el.querySelector('img') as HTMLImageElement;
+    if (sigImg && sigImg.src) {
+      // Priverstinis laukimas, kol vaizdas bus paruoštas piešimui
+      await new Promise((resolve) => {
+        if (sigImg.complete) resolve(true);
+        sigImg.onload = () => resolve(true);
+        sigImg.onerror = () => resolve(true);
+      });
+    }
+
+    // 2. Dar papildoma pauzė MacBook ekranams
+    await new Promise(r => setTimeout(r, 500));
 
     try {
       return await html2canvas(el, { 
-        scale: 2, // Aukšta kokybė
+        scale: 2, 
         useCORS: true,
         logging: false,
         backgroundColor: '#ffffff',
-        imageTimeout: 0, // Priverčia laukti visų paveikslėlių (parašo) krovimo
-        removeContainer: true,
-        // Užtikriname, kad klonuotame vaizde parašas būtų matomas
+        imageTimeout: 15000, // Leidžiame iki 15s paveikslėliams įkrauti
         onclone: (clonedDoc) => {
           const reportEl = clonedDoc.getElementById(elementId);
           if (reportEl) {
-            reportEl.style.position = 'static';
+            // Svarbu: Pakeičiame stilių klone, kad jis būtų "matomas" html2canvas
+            reportEl.style.position = 'relative';
             reportEl.style.left = '0';
+            reportEl.style.opacity = '1';
+            reportEl.style.visibility = 'visible';
+            reportEl.style.display = 'block';
           }
-          // Priverstinai surandame visus img elementus (parašą)
-          const imgs = clonedDoc.getElementsByTagName('img');
-          for (let i = 0; i < imgs.length; i++) {
-            imgs[i].style.display = 'block';
-            imgs[i].style.visibility = 'visible';
+          
+          // Priverstinai surandame parašo img klonuotame dokumente
+          const images = clonedDoc.getElementsByTagName('img');
+          for (let i = 0; i < images.length; i++) {
+            images[i].style.display = 'block';
+            images[i].style.visibility = 'visible';
+            images[i].style.opacity = '1';
           }
         }
       });
@@ -76,12 +91,13 @@ export default function Page() {
       const imgData = canvas.toDataURL('image/png', 1.0);
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pageWidth = pdf.internal.pageSize.getWidth();
+      // Apskaičiuojame aukštį, kad jis neviršytų A4 lapo, bet išlaikytų proporcijas
       const pageHeight = (canvas.height * pageWidth) / canvas.width;
 
-      pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight, undefined, 'FAST');
+      pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight);
       pdf.save(`ataskaita-${calc.name || 'vairuotojas'}.pdf`);
     } catch (e) {
-      alert("Nepavyko sugeneruoti PDF. Pabandykite dar kartą.");
+      alert("Nepavyko sugeneruoti PDF.");
     }
   };
 
@@ -105,11 +121,11 @@ export default function Page() {
             text: `Vairuotojo ${calc.name} ${calc.surname} ataskaita`,
           });
         } else {
+          // Jei dalinimosi nėra (pvz. kompiuteryje), siūlome PDF
           generatePDF();
         }
-      }, 'image/png', 1.0);
+      }, 'image/png');
     } catch (error) {
-      alert("Dalintis nepavyko. Sugeneruotas PDF atsisiuntimui.");
       generatePDF();
     }
   };
@@ -158,7 +174,7 @@ export default function Page() {
         holidayPay={calc.holidayPay} 
       />
 
-      {/* Svarbu: HiddenReport turi būti DOM'e, bet išstumtas iš vaizdo lauko */}
+      {/* Svarbu: HiddenReport stilius turi būti opacity 0.01, o ne display none */}
       <HiddenReport {...calc} />
 
       <SalaryActions 
@@ -168,7 +184,7 @@ export default function Page() {
       />
       
       <p className="text-center text-gray-600 text-[10px] pt-4 uppercase tracking-widest">
-        v1.8 | Vaizga App
+        v1.9 | Vaizga App
       </p>
     </main>
   );

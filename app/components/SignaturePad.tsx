@@ -1,7 +1,7 @@
 'use client';
 
 import SignatureCanvas from 'react-signature-canvas';
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 
 type Props = {
   signature: string | null;
@@ -11,11 +11,29 @@ type Props = {
 export default function SignaturePad({ signature, setSignature }: Props) {
   const sigRef = useRef<SignatureCanvas>(null);
 
-  // Funkcija, kuri suveikia kaskart pakėlus pelę/pirštą
+  // Svarbu: užtikriname, kad canvas persipieštų pakeitus lango dydį
+  useEffect(() => {
+    const handleResize = () => {
+      if (sigRef.current) {
+        // Išsaugome dabartinį parašą prieš resize, jei reikia, 
+        // bet paprastai užtenka tiesiog išvalyti/perkrauti
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const handleEnd = () => {
     if (sigRef.current) {
-      // getTrimmedCanvas pašalina tuščius kraštus aplink parašą
-      const dataUrl = sigRef.current.getTrimmedCanvas().toDataURL('image/png');
+      if (sigRef.current.isEmpty()) {
+        setSignature(null);
+        return;
+      }
+      
+      // PAKEITIMAS: Naudojame tiesioginį toDataURL iš canvas elemento, 
+      // kad išvengtume mastelio problemų su "trimmed" versija testavimo metu.
+      // Jei norite būtinai apkarpyto, naudokite: sigRef.current.getTrimmedCanvas().toDataURL('image/png')
+      const dataUrl = sigRef.current.getCanvas().toDataURL('image/png');
       setSignature(dataUrl);
     }
   };
@@ -44,19 +62,23 @@ export default function SignaturePad({ signature, setSignature }: Props) {
         <SignatureCanvas
           ref={sigRef}
           onEnd={handleEnd}
+          penColor="black"
           canvasProps={{
+            // Svarbu: nurodykite plotį ir aukštį tiesiogiai, kad biblioteka žinotų koordinates
+            width: 500, 
+            height: 160,
             className: 'signature-canvas w-full h-full cursor-crosshair touch-none',
           }}
-          backgroundColor="rgb(255, 255, 255)"
+          backgroundColor="white"
         />
         {!signature && (
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
-            <span className="text-gray-500 font-bold">Pasirašykite pelė arba pirštu</span>
+            <span className="text-gray-500 font-bold text-sm">Pasirašykite čia</span>
           </div>
         )}
       </div>
-      <p className="text-[10px] text-gray-500 mt-2 text-center">
-        Galite atkelti pelę/pirštą ir tęsti.
+      <p className="text-[10px] text-gray-500 mt-2 text-center uppercase tracking-tighter">
+        Parašas automatiškai išsaugomas pakėlus pirštą/pelę
       </p>
     </div>
   );

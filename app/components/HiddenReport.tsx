@@ -23,9 +23,11 @@ export default function HiddenReport({
     <div
       id="report"
       style={{
-        position: 'absolute',
-        left: '-9999px', // Išstumta iš ekrano
-        top: 0,
+        // PAKEITIMAS: Vietoj -9999px naudojame fixed su minimaliu matomumu,
+        // kad naršyklė priverstinai renderintų parašo img.
+        position: 'fixed',
+        left: '0',
+        top: '0',
         width: '210mm',
         minHeight: '297mm',
         background: '#ffffff',
@@ -34,7 +36,9 @@ export default function HiddenReport({
         fontFamily: 'Helvetica, Arial, sans-serif',
         fontSize: '12px',
         lineHeight: '1.5',
-        zIndex: -1,
+        zIndex: -500,
+        opacity: 0.02, 
+        pointerEvents: 'none',
       }}
     >
       {/* Dokumento viršūnė */}
@@ -49,7 +53,7 @@ export default function HiddenReport({
         </div>
       </div>
 
-      {/* 1. Pagrindinė suvestinė */}
+      {/* 1. Pagrindiniai duomenys */}
       <div style={{ marginBottom: '25px' }}>
         <h2 style={{ fontSize: '13px', backgroundColor: '#eee', padding: '5px 10px', marginBottom: '10px', fontWeight: 'bold', textTransform: 'uppercase' }}>1. Pagrindiniai duomenys</h2>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -167,16 +171,14 @@ export default function HiddenReport({
           }}>
             {signature ? (
               <img 
-                id="signature-img"
+                id="report-signature-img"
                 src={signature} 
-                alt="Parašas" 
+                alt="Vairuotojo parašas" 
                 crossOrigin="anonymous"
-                decoding="sync"
-                loading="eager"
                 style={{ 
                   display: 'block',
                   width: '220px',
-                  height: '90px',
+                  height: '100px',
                   objectFit: 'contain'
                 }} 
               />
@@ -193,7 +195,7 @@ export default function HiddenReport({
           </div>
 
           <p style={{ margin: '0', fontSize: '14px', fontWeight: 'bold', textTransform: 'uppercase' }}>{name} {surname}</p>
-          <p style={{ margin: '2px 0', fontSize: '10px', color: '#666 italic' }}>Vairuotojo patvirtinimas</p>
+          <p style={{ margin: '2px 0', fontSize: '10px', color: '#666', fontStyle: 'italic' }}>Vairuotojo patvirtinimas</p>
           
           <div style={{ marginTop: '10px', fontSize: '10px', backgroundColor: '#333', color: '#fff', padding: '3px 10px', borderRadius: '2px', display: 'inline-block' }}>
             {new Date().toLocaleString('lt-LT', { dateStyle: 'long', timeStyle: 'short' })}
