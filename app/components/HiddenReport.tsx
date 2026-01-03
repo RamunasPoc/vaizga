@@ -24,7 +24,7 @@ export default function HiddenReport({
       id="report"
       style={{
         position: 'absolute',
-        left: '-9999px',
+        left: '-9999px', // Išstumta iš ekrano
         top: 0,
         width: '210mm',
         minHeight: '297mm',
@@ -34,6 +34,7 @@ export default function HiddenReport({
         fontFamily: 'Helvetica, Arial, sans-serif',
         fontSize: '12px',
         lineHeight: '1.5',
+        zIndex: -1,
       }}
     >
       {/* Dokumento viršūnė */}
@@ -166,16 +167,16 @@ export default function HiddenReport({
           }}>
             {signature ? (
               <img 
+                id="signature-img"
                 src={signature} 
                 alt="Parašas" 
-                // Papildomi nustatymai, kad naršyklė "pamatytų" vaizdą generuojant
                 crossOrigin="anonymous"
                 decoding="sync"
                 loading="eager"
                 style={{ 
                   display: 'block',
-                  width: '230px',
-                  height: '100px',
+                  width: '220px',
+                  height: '90px',
                   objectFit: 'contain'
                 }} 
               />
