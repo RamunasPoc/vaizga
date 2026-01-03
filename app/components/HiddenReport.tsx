@@ -17,6 +17,7 @@ export default function HiddenReport({
   stationPay,
   extraPay,
   holidayPay,
+  signature, // Įsitikinkite, kad šis laukas perduodamas iš huko
 }: SalaryCalculatorState) {
   return (
     <div
@@ -25,7 +26,7 @@ export default function HiddenReport({
         position: 'absolute',
         left: '-9999px',
         top: 0,
-        width: '210mm', // A4 formatas
+        width: '210mm',
         minHeight: '297mm',
         background: '#ffffff',
         color: '#000000',
@@ -47,7 +48,7 @@ export default function HiddenReport({
         </div>
       </div>
 
-      {/* Pagrindinė suvestinė */}
+      {/* 1. Pagrindinė suvestinė */}
       <div style={{ marginBottom: '20px' }}>
         <h2 style={{ fontSize: '14px', borderBottom: '1px solid #eee', paddingBottom: '5px', marginBottom: '10px', fontWeight: 'bold' }}>1. PAGRINDINIAI DUOMENYS</h2>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
@@ -70,7 +71,7 @@ export default function HiddenReport({
         </table>
       </div>
 
-      {/* Papildomi darbai */}
+      {/* 2. Papildomi darbai */}
       {extraWorks.length > 0 && (
         <div style={{ marginBottom: '20px' }}>
           <h2 style={{ fontSize: '14px', borderBottom: '1px solid #eee', paddingBottom: '5px', marginBottom: '10px', fontWeight: 'bold' }}>2. PAPILDOMI DARBAI</h2>
@@ -95,7 +96,7 @@ export default function HiddenReport({
         </div>
       )}
 
-      {/* Šventinės dienos */}
+      {/* 3. Šventinės dienos */}
       {holidayWorks.length > 0 && (
         <div style={{ marginBottom: '20px' }}>
           <h2 style={{ fontSize: '14px', borderBottom: '1px solid #eee', paddingBottom: '5px', marginBottom: '10px', fontWeight: 'bold', color: '#b91c1c' }}>3. ŠVENTINĖS DIENOS (X2)</h2>
@@ -126,7 +127,7 @@ export default function HiddenReport({
         </div>
       )}
 
-      {/* Finansinė suvestinė */}
+      {/* 4. Finansinė suvestinė */}
       <div style={{ marginTop: '30px', backgroundColor: '#f9f9f9', padding: '15px', borderRadius: '8px' }}>
         <h2 style={{ fontSize: '14px', marginBottom: '10px', fontWeight: 'bold' }}>APSKAIČIUOTAS ATLYGIS (Bruto)</h2>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
@@ -150,6 +151,66 @@ export default function HiddenReport({
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', paddingTop: '10px', borderTop: '2px solid #000', fontSize: '18px', fontWeight: 'bold' }}>
           <span>IŠ VISO:</span>
           <span>{total.toFixed(2)} €</span>
+        </div>
+      </div>
+
+      {/* 5. Parašo sekcija su rėmeliu ir data */}
+      <div style={{ marginTop: '60px', display: 'flex', justifyContent: 'flex-end' }}>
+        <div style={{ textAlign: 'center' }}>
+          {/* Parašo rėmelis */}
+          <div style={{ 
+            width: '220px', 
+            height: '100px', 
+            border: '1px solid #000', 
+            borderRadius: '4px',
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center',
+            backgroundColor: '#fcfcfc',
+            position: 'relative',
+            marginBottom: '8px'
+          }}>
+            {signature ? (
+              <img 
+                src={signature} 
+                alt="Parašas" 
+                style={{ maxHeight: '90px', maxWidth: '210px' }} 
+              />
+            ) : (
+              <span style={{ color: '#ccc', fontSize: '10px' }}>Parašo vieta</span>
+            )}
+            
+            <span style={{ 
+              position: 'absolute', 
+              bottom: '2px', 
+              right: '5px', 
+              fontSize: '8px', 
+              color: '#999',
+              textTransform: 'uppercase'
+            }}>
+              Patvirtinta
+            </span>
+          </div>
+
+          {/* Vairuotojo vardas ir data */}
+          <p style={{ margin: '0', fontSize: '13px', fontWeight: 'bold', textTransform: 'uppercase' }}>
+            {name} {surname}
+          </p>
+          <p style={{ margin: '2px 0', fontSize: '10px', color: '#666' }}>
+            Vairuotojo parašas
+          </p>
+          <p style={{ 
+            margin: '4px 0', 
+            fontSize: '10px', 
+            color: '#000', 
+            fontFamily: 'monospace',
+            backgroundColor: '#eee',
+            padding: '2px 5px',
+            borderRadius: '2px',
+            display: 'inline-block'
+          }}>
+            {new Date().toLocaleString('lt-LT')}
+          </p>
         </div>
       </div>
 

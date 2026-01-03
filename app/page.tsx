@@ -12,18 +12,19 @@ import SalaryBreakdown from './components/SalaryBreakdown';
 import SalaryHeader from './components/SalaryHeader';
 import SalaryActions from './components/SalaryActions';
 import HiddenReport from './components/HiddenReport';
+import SignaturePad from './components/SignaturePad';
 
 import { useSalaryCalculator } from './hooks/useSalaryCalculator';
 
 export default function Page() {
   const calc = useSalaryCalculator();
 
-  // 📄 PDF generavimas
+  // 📄 1. Funkcija PDF atsisiuntimui (archyvui)
   const generatePDF = async () => {
     const el = document.getElementById('report');
     if (!el) return;
 
-    const canvas = await html2canvas(el, { scale: 2 });
+    const canvas = await html2canvas(el, { scale: 2, useCORS: true });
     const img = canvas.toDataURL('image/png');
 
     const pdf = new jsPDF('p', 'mm', 'a4');
@@ -31,15 +32,50 @@ export default function Page() {
     const pageHeight = (canvas.height * pageWidth) / canvas.width;
 
     pdf.addImage(img, 'PNG', 0, 0, pageWidth, pageHeight);
-    pdf.save(`darbo-ataskaita-${calc.name}-${calc.surname}.pdf`);
+    pdf.save(`ataskaita-${calc.name || 'vairuotojas'}-${new Date().toISOString().slice(0, 10)}.pdf`);
+  };
+
+  // 📲 2. Funkcija dalinimuisi (WhatsApp / Viber)
+  const handleShare = async () => {
+    const el = document.getElementById('report');
+    if (!el) return;
+
+    try {
+      const canvas = await html2canvas(el, { 
+        scale: 2, 
+        useCORS: true,
+        backgroundColor: '#ffffff' 
+      });
+
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+
+        const fileName = `ataskaita-${calc.name || 'vairuotojas'}.png`;
+        const file = new File([blob], fileName, { type: 'image/png' });
+
+        // Tikriname, ar įrenginys palaiko dalinimąsi failais (Web Share API)
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: 'Darbo ataskaita',
+            text: `Vairuotojo ${calc.name} ${calc.surname} darbo ataskaita`,
+          });
+        } else {
+          // Jei nepalaiko, tiesiog atsisiunčiame PDF
+          generatePDF();
+          alert("Dalinimasis nepalaikomas šioje naršyklėje. Ataskaita sugeneruota kaip PDF.");
+        }
+      }, 'image/png');
+    } catch (error) {
+      console.error('Dalinimosi klaida:', error);
+      alert("Nepavyko pasidalinti ataskaita.");
+    }
   };
 
   return (
     <main className="min-h-screen bg-gray-900 text-white p-4 space-y-6 pb-10">
-      {/* Header su bendru atlyginimu - gali pridėti 'sticky top-0 z-10', jei nori, kad sektų vaizdą */}
       <SalaryHeader total={calc.total} />
 
-      {/* Vairuotojas */}
       <Section title="Vairuotojas">
         <TextInput
           label="Vardas"
@@ -55,7 +91,6 @@ export default function Page() {
         />
       </Section>
 
-      {/* Pagrindiniai darbai */}
       <Section title="Pagrindiniai darbai">
         <NumberInput
           label="Nuvažiuoti km"
@@ -64,7 +99,7 @@ export default function Page() {
           icon="🛣️"
         />
         <NumberInput
-          label="Pakrovimai terminale skaičius (iškrovimas automatiškai skaičiuojamas pvz: 1 pakrovimas (2 val.))"
+          label="Pakrovimai terminale (vnt.)"
           value={calc.loads}
           setValue={(v: number | '') => calc.setLoads(v)}
           icon="📦"
@@ -85,7 +120,6 @@ export default function Page() {
         </div>
       </Section>
 
-      {/* Papildomi darbai (Interaktyvūs su animacijomis) */}
       <ExtraWorksSection
         extraWorks={calc.extraWorks}
         addExtraWork={calc.addExtraWork}
@@ -93,7 +127,6 @@ export default function Page() {
         removeExtraWork={calc.removeExtraWork}
       />
 
-      {/* Šventinių darbų sekcija (Interaktyvi su x2 indikacija) */}
       <HolidayWorksSection
         holidayWorks={calc.holidayWorks}
         addHolidayWork={calc.addHolidayWork}
@@ -101,7 +134,14 @@ export default function Page() {
         removeHolidayWork={calc.removeHolidayWork}
       />
 
-      {/* Algos sudėtis (Suskirstymas) */}
+      {/* 🖋️ Parašo padėkliukas */}
+      <Section title="Patvirtinimas">
+        <SignaturePad 
+          signature={calc.signature} 
+          setSignature={calc.setSignature} 
+        />
+      </Section>
+
       <SalaryBreakdown
         kmPay={calc.kmPay}
         loadPay={calc.loadPay}
@@ -110,14 +150,17 @@ export default function Page() {
         holidayPay={calc.holidayPay} 
       />
 
-      {/* Paslėpta ataskaita skirta html2canvas */}
+      {/* Šablonas generavimui (nematomas ekrane) */}
       <HiddenReport {...calc} />
 
-      {/* Veiksmai: PDF generavimas ir kt. */}
-      <SalaryActions onGeneratePDF={generatePDF} />
+      {/* 🟢 Mygtukai: PDF ir Dalintis */}
+      <SalaryActions 
+        onGeneratePDF={generatePDF} 
+        onShare={handleShare} 
+      />
       
-      <p className="text-center text-gray-600 text-[10px] pt-4">
-        v1.2 | PWA paruošta naudojimui neprisijungus
+      <p className="text-center text-gray-600 text-[10px] pt-4 uppercase tracking-widest">
+        v1.4 | Pilnas funkcionalumas paruoštas
       </p>
     </main>
   );

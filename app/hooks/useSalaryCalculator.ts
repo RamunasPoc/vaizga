@@ -52,6 +52,10 @@ export interface SalaryCalculatorState {
   ) => void;
   removeHolidayWork: (index: number) => void;
 
+  // Parašo būsena
+  signature: string | null;
+  setSignature: (v: string | null) => void;
+
   kmPay: number;
   loadPay: number;
   stationPay: number;
@@ -85,6 +89,9 @@ export function useSalaryCalculator(): SalaryCalculatorState {
 
   const [extraWorks, setExtraWorks] = useState<ExtraWork[]>([]);
   const [holidayWorks, setHolidayWorks] = useState<HolidayWork[]>([]);
+  
+  // Pridedame parašo būseną (saugomas kaip Base64 string)
+  const [signature, setSignature] = useState<string | null>(null);
 
   /* =======================
      PAGRINDINIAI SKAIČIAVIMAI
@@ -127,12 +134,10 @@ export function useSalaryCalculator(): SalaryCalculatorState {
   ======================= */
 
   const holidayPay = holidayWorks.reduce((sum, day) => {
-    // 1. Skaičiuojame tos dienos uždarbį standartiniu tarifu
     const dayKmPay = day.km !== '' ? Number(day.km) * RATES.KM : 0;
     const dayLoadPay = day.loads !== '' ? Number(day.loads) * RATES.LOAD_HOURS * RATES.HOURLY : 0;
     const dayStationPay = day.stations !== '' ? (Number(day.stations) * RATES.STATION_MIN / 60) * RATES.HOURLY : 0;
 
-    // 2. Kadangi tai x2, pridedame tiek pat, kiek uždirbta (100% priedas)
     const dayTotal = dayKmPay + dayLoadPay + dayStationPay;
     return sum + (dayTotal * 2); 
   }, 0);
@@ -163,6 +168,7 @@ export function useSalaryCalculator(): SalaryCalculatorState {
     loadHours,
     extraWorks, addExtraWork, updateExtraWork, removeExtraWork,
     holidayWorks, addHolidayWork, updateHolidayWork, removeHolidayWork,
+    signature, setSignature, // Grąžiname parašo funkcijas
     kmPay, loadPay, stationPay, extraPay, holidayPay, total,
   };
 }
