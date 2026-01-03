@@ -24,10 +24,10 @@ export default function ExtraWorksSection({
   removeExtraWork,
 }: Props) {
   return (
-    <Section title="Papildomi darbai / Ilgi pakrovimai">
+    <Section title="Papildomi darbai / Ilgesni nei 1 val pakrovimai/iškrovimai">
       <div className="space-y-4">
         <p className="text-xs text-gray-400 italic px-1">
-          Nurodykite darbus virš 1 val., datą ir trumpą aprašymą.
+          Nurodykite atliktus darbus, datą, aprašymą ir kiek laiko užtrukta.
         </p>
 
         <div className="space-y-4">
