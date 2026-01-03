@@ -3,18 +3,23 @@
 import SignatureCanvas from 'react-signature-canvas';
 import { useRef } from 'react';
 
-// Čia svarbu, kad SignaturePad leistų atkelti pirštą ir tęsti
-export default function SignaturePad({ signature, setSignature }: { signature: string | null, setSignature: (v: string | null) => void }) {
-  const sigRef = useRef<any>(null);
+type Props = {
+  signature: string | null;
+  setSignature: (v: string | null) => void;
+};
 
-  // Kiekvieną kartą pakėlus pirštą, išsaugome rezultatą
+export default function SignaturePad({ signature, setSignature }: Props) {
+  const sigRef = useRef<SignatureCanvas>(null);
+
+  // Funkcija, kuri suveikia kaskart pakėlus pelę/pirštą
   const handleEnd = () => {
     if (sigRef.current) {
-      setSignature(sigRef.current.getTrimmedCanvas().toDataURL('image/png'));
+      // getTrimmedCanvas pašalina tuščius kraštus aplink parašą
+      const dataUrl = sigRef.current.getTrimmedCanvas().toDataURL('image/png');
+      setSignature(dataUrl);
     }
   };
 
-  // Išvalymo funkcija išvalo ir canvas, ir jūsų duomenis
   const clear = () => {
     sigRef.current?.clear();
     setSignature(null);
@@ -23,35 +28,35 @@ export default function SignaturePad({ signature, setSignature }: { signature: s
   return (
     <div className="bg-gray-800 p-4 rounded-2xl border border-gray-700">
       <div className="flex justify-between items-center mb-2">
-        <label className="text-xs font-bold text-gray-400 uppercase italic">Vairuotojo parašas</label>
-        {/* Čia yra Jūsų prašytas išvalymo mygtukas */}
+        <label className="text-xs font-bold text-gray-400 uppercase italic">
+          Vairuotojo parašas
+        </label>
         <button 
-          onClick={clear} 
-          className="text-[10px] bg-red-600 text-white px-3 py-1 rounded-md hover:bg-red-500 transition-colors shadow-sm"
+          type="button"
+          onClick={clear}
+          className="text-[10px] bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded transition-colors"
         >
-          🗑️ Išvalyti parašą
+          🗑️ Išvalyti
         </button>
       </div>
-      
-      <div className="bg-white rounded-xl overflow-hidden shadow-inner border-2 border-transparent focus-within:border-blue-500 relative">
+
+      <div className="bg-white rounded-xl overflow-hidden relative" style={{ height: '160px' }}>
         <SignatureCanvas
           ref={sigRef}
           onEnd={handleEnd}
-          canvasProps={{ 
-            // touch-none yra kritinis mobilyje, kad nejudėtų ekranas piešiant
-            className: 'w-full h-40 cursor-crosshair touch-none',
-            style: { width: '100%', height: '160px' } 
+          canvasProps={{
+            className: 'signature-canvas w-full h-full cursor-crosshair touch-none',
           }}
+          backgroundColor="rgb(255, 255, 255)"
         />
         {!signature && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <span className="text-gray-300 text-xl font-bold opacity-50 rotate-[-5deg]">Pasirašykite čia</span>
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
+            <span className="text-gray-500 font-bold">Pasirašykite pelė arba pirštu</span>
           </div>
         )}
       </div>
-      
-      <p className="text-[10px] text-gray-500 mt-2 text-center italic">
-        Galite atkelti pirštą ir tęsti. Norėdami perrašyti, spauskite "Išvalyti".
+      <p className="text-[10px] text-gray-500 mt-2 text-center">
+        Galite atkelti pelę/pirštą ir tęsti.
       </p>
     </div>
   );

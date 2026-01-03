@@ -165,17 +165,18 @@ export default function HiddenReport({
             marginBottom: '10px'
           }}>
             {signature ? (
-              // PAKEITIMAS: Explicit width/height ir display:block būtina HTML2Canvas
               <img 
                 src={signature} 
                 alt="Parašas" 
-                width="230"
-                height="100"
+                // Papildomi nustatymai, kad naršyklė "pamatytų" vaizdą generuojant
+                crossOrigin="anonymous"
+                decoding="sync"
+                loading="eager"
                 style={{ 
-                  maxWidth: '100%', 
-                  maxHeight: '100%', 
-                  objectFit: 'contain', 
-                  display: 'block' 
+                  display: 'block',
+                  width: '230px',
+                  height: '100px',
+                  objectFit: 'contain'
                 }} 
               />
             ) : (

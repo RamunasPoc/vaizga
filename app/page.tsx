@@ -19,69 +19,75 @@ import { useSalaryCalculator } from './hooks/useSalaryCalculator';
 export default function Page() {
   const calc = useSalaryCalculator();
 
-  // 🗑️ Išvalyti viską
   const handleReset = () => {
     if (window.confirm("Ar tikrai norite išvalyti visus įvestus duomenis?")) {
       window.location.reload();
     }
   };
 
-  // 🛠️ Pagalbinė funkcija, paruošianti canvas
-  // Ji užtikrina, kad parašas tikrai matysis nuotraukoje
+  /**
+   * Patobulinta Canvas generavimo funkcija
+   */
   const generateCanvas = async (elementId: string) => {
     const el = document.getElementById(elementId);
     if (!el) return null;
 
-    // 1. Pauzė: leidžiame React atnaujinti DOM (pvz. įdėti parašą)
-    await new Promise(r => setTimeout(r, 500));
+    // 1. Suteikiame daugiau laiko (800ms) MacBook/Retina ekranams apdoroti parašą
+    await new Promise(r => setTimeout(r, 800));
 
-    // 2. Generavimas su specialiais nustatymais vaizdams
-    return await html2canvas(el, { 
-      scale: 2, 
-      useCORS: true,
-      logging: false,
-      backgroundColor: '#ffffff',
-      // Ši dalis kritinė, kad parašas nedingtų:
-      onclone: (clonedDoc) => {
-        const images = clonedDoc.getElementsByTagName('img');
-        for (let i = 0; i < images.length; i++) {
-          images[i].style.display = 'block'; 
+    try {
+      return await html2canvas(el, { 
+        scale: 2, // Aukšta kokybė
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        imageTimeout: 0, // Priverčia laukti visų paveikslėlių (parašo) krovimo
+        removeContainer: true,
+        // Užtikriname, kad klonuotame vaizde parašas būtų matomas
+        onclone: (clonedDoc) => {
+          const reportEl = clonedDoc.getElementById(elementId);
+          if (reportEl) {
+            reportEl.style.position = 'static';
+            reportEl.style.left = '0';
+          }
+          // Priverstinai surandame visus img elementus (parašą)
+          const imgs = clonedDoc.getElementsByTagName('img');
+          for (let i = 0; i < imgs.length; i++) {
+            imgs[i].style.display = 'block';
+            imgs[i].style.visibility = 'visible';
+          }
         }
-      }
-    });
+      });
+    } catch (err) {
+      console.error("Canvas generavimo klaida:", err);
+      return null;
+    }
   };
 
-  // 📄 Generuoti PDF
   const generatePDF = async () => {
-    // Jei nėra parašo, paklausiame, bet leidžiame tęsti
     if (!calc.signature) {
-      const proceed = window.confirm("Ataskaita nepasirašyta. Ar generuoti PDF be parašo?");
-      if (!proceed) return;
+      if (!window.confirm("Ataskaita nepasirašyta. Ar generuoti PDF be parašo?")) return;
     }
 
     try {
       const canvas = await generateCanvas('report');
       if (!canvas) return;
       
-      const img = canvas.toDataURL('image/png');
+      const imgData = canvas.toDataURL('image/png', 1.0);
       const pdf = new jsPDF('p', 'mm', 'a4');
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = (canvas.height * pageWidth) / canvas.width;
 
-      pdf.addImage(img, 'PNG', 0, 0, pageWidth, pageHeight);
+      pdf.addImage(imgData, 'PNG', 0, 0, pageWidth, pageHeight, undefined, 'FAST');
       pdf.save(`ataskaita-${calc.name || 'vairuotojas'}.pdf`);
     } catch (e) {
-      console.error(e);
-      alert("Įvyko klaida generuojant PDF.");
+      alert("Nepavyko sugeneruoti PDF. Pabandykite dar kartą.");
     }
   };
 
-  // 📲 Dalintis
   const handleShare = async () => {
-    // Jei nėra parašo, paklausiame
     if (!calc.signature) {
-      const proceed = window.confirm("Ataskaita nepasirašyta. Ar tikrai siųsti be parašo?");
-      if (!proceed) return;
+      if (!window.confirm("Ataskaita nepasirašyta. Ar tikrai siųsti be parašo?")) return;
     }
 
     try {
@@ -92,7 +98,6 @@ export default function Page() {
         if (!blob) return;
         const file = new File([blob], `ataskaita.png`, { type: 'image/png' });
 
-        // Naudojame Web Share API
         if (navigator.canShare && navigator.canShare({ files: [file] })) {
           await navigator.share({
             files: [file],
@@ -100,13 +105,12 @@ export default function Page() {
             text: `Vairuotojo ${calc.name} ${calc.surname} ataskaita`,
           });
         } else {
-          // Jei telefonas nepalaiko dalinimosi failais, siūlome PDF
           generatePDF();
         }
-      }, 'image/png');
+      }, 'image/png', 1.0);
     } catch (error) {
-      console.error('Klaida dalinantis:', error);
-      alert("Nepavyko pasidalinti. Pabandykite atsisiųsti PDF.");
+      alert("Dalintis nepavyko. Sugeneruotas PDF atsisiuntimui.");
+      generatePDF();
     }
   };
 
@@ -122,9 +126,7 @@ export default function Page() {
       <Section title="Pagrindiniai darbai">
         <NumberInput label="Nuvažiuoti km" value={calc.km} setValue={calc.setKm} icon="🛣️" />
         <NumberInput label="Pakrovimai terminale" value={calc.loads} setValue={calc.setLoads} icon="📦" />
-        <div className="space-y-1">
-          <NumberInput label="Degalinės (20 min.)" value={calc.stations} setValue={calc.setStations} icon="⛽" />
-        </div>
+        <NumberInput label="Degalinės (20 min.)" value={calc.stations} setValue={calc.setStations} icon="⛽" />
       </Section>
 
       <ExtraWorksSection 
@@ -142,7 +144,6 @@ export default function Page() {
       />
 
       <Section title="Patvirtinimas">
-        {/* Čia naudojamas naujasis SignaturePad su išvalymo mygtuku */}
         <SignaturePad 
           signature={calc.signature} 
           setSignature={calc.setSignature} 
@@ -157,7 +158,7 @@ export default function Page() {
         holidayPay={calc.holidayPay} 
       />
 
-      {/* Paslėptas komponentas, kuris priima visus duomenis + parašą */}
+      {/* Svarbu: HiddenReport turi būti DOM'e, bet išstumtas iš vaizdo lauko */}
       <HiddenReport {...calc} />
 
       <SalaryActions 
@@ -167,7 +168,7 @@ export default function Page() {
       />
       
       <p className="text-center text-gray-600 text-[10px] pt-4 uppercase tracking-widest">
-        v1.7 | Vaizga App
+        v1.8 | Vaizga App
       </p>
     </main>
   );
