@@ -64,7 +64,7 @@ export default function Page() {
           icon="🛣️"
         />
         <NumberInput
-          label="Pakrovimai terminale (2 val.)"
+          label="Pakrovimai terminale skaičius (iškrovimas automatiškai skaičiuojamas pvz: 1 pakrovimas (2 val.))"
           value={calc.loads}
           setValue={(v: number | '') => calc.setLoads(v)}
           icon="📦"
