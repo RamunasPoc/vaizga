@@ -1,49 +1,50 @@
-'use client';
-
-import { useRef } from 'react';
+// components/SignaturePad.tsx
 import SignatureCanvas from 'react-signature-canvas';
+import { useRef } from 'react';
 
-type Props = {
-  signature: string | null;
-  setSignature: (v: string | null) => void;
-};
+export default function SignaturePad({ signature, setSignature }: { signature: string | null, setSignature: (v: string | null) => void }) {
+  const sigRef = useRef<any>(null);
 
-export default function SignaturePad({ signature, setSignature }: Props) {
-  const sigCanvas = useRef<SignatureCanvas>(null);
+  const handleEnd = () => {
+    if (sigRef.current) {
+      // Svarbu: naudojame PNG formatą
+      setSignature(sigRef.current.getTrimmedCanvas().toDataURL('image/png'));
+    }
+  };
 
   const clear = () => {
-    sigCanvas.current?.clear();
+    sigRef.current?.clear();
     setSignature(null);
   };
 
-  const save = () => {
-    if (sigCanvas.current?.isEmpty()) return;
-    const dataUrl = sigCanvas.current?.getTrimmedCanvas().toDataURL('image/png');
-    if (dataUrl) setSignature(dataUrl);
-  };
-
   return (
-    <div className="bg-gray-800 p-4 rounded-xl space-y-3">
-      <div className="flex justify-between items-center">
-        <h3 className="text-sm font-semibold text-gray-400 uppercase tracking-wider">Vairuotojo parašas</h3>
+    <div className="bg-gray-800 p-4 rounded-2xl border border-gray-700">
+      <div className="flex justify-between items-center mb-2">
+        <label className="text-xs font-bold text-gray-400 uppercase italic">Vairuotojo parašas</label>
         {signature && (
-          <button onClick={clear} className="text-xs text-red-400 hover:underline">
-            Ištrinti ir pasirašyti iš naujo
+          <button 
+            onClick={clear} 
+            className="text-[10px] bg-red-900/30 text-red-400 px-2 py-1 rounded-md border border-red-900/50 hover:bg-red-900/50 transition-colors"
+          >
+            ✕ Pasirašyti iš naujo
           </button>
         )}
       </div>
-
-      <div className="bg-white rounded-lg overflow-hidden shadow-inner">
+      <div className="bg-white rounded-xl overflow-hidden shadow-inner border-2 border-transparent focus-within:border-blue-500">
         <SignatureCanvas
-          ref={sigCanvas}
-          penColor="black"
-          canvasProps={{
-            className: 'w-full h-32 cursor-crosshair',
+          ref={sigRef}
+          onEnd={handleEnd}
+          canvasProps={{ 
+            className: 'w-full h-40 cursor-crosshair',
+            style: { display: 'block' } // Užtikrina, kad canvas nebūtų 0px aukščio
           }}
-          onEnd={save}
         />
       </div>
-      <p className="text-[10px] text-gray-500 text-center uppercase">Pasirašykite pirštu aukščiau esančiame laukelyje</p>
+      {!signature && (
+        <p className="text-[10px] text-gray-500 mt-2 text-center italic">
+          Pasirašykite aukščiau esančiame baltame laukelyje
+        </p>
+      )}
     </div>
   );
 }
