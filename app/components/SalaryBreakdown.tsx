@@ -38,7 +38,7 @@ export default function SalaryBreakdown({
 
       <div className="pt-2 mt-2 border-t border-gray-700">
         <div className="flex justify-between text-base font-bold text-green-400">
-          <span>Iš viso (prieš mokesčius):</span>
+          <span>Iš viso (po mokesčių):</span>
           <span>{total.toFixed(2)} €</span>
         </div>
       </div>

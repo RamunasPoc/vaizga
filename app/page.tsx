@@ -26,43 +26,67 @@ export default function Page() {
     }
   };
 
-  // 📄 Generuoti PDF
-  const generatePDF = async () => {
-    const el = document.getElementById('report');
-    if (!el) return;
+  // 🛠️ Pagalbinė funkcija, paruošianti canvas
+  // Ji užtikrina, kad parašas tikrai matysis nuotraukoje
+  const generateCanvas = async (elementId: string) => {
+    const el = document.getElementById(elementId);
+    if (!el) return null;
 
-    // Pauzė užtikrina, kad visi elementai (įskaitant parašą, jei jis yra) pasikrautų
-    await new Promise(r => setTimeout(r, 300));
+    // 1. Pauzė: leidžiame React atnaujinti DOM (pvz. įdėti parašą)
+    await new Promise(r => setTimeout(r, 500));
 
-    const canvas = await html2canvas(el, { 
+    // 2. Generavimas su specialiais nustatymais vaizdams
+    return await html2canvas(el, { 
       scale: 2, 
       useCORS: true,
-      logging: false 
+      logging: false,
+      backgroundColor: '#ffffff',
+      // Ši dalis kritinė, kad parašas nedingtų:
+      onclone: (clonedDoc) => {
+        const images = clonedDoc.getElementsByTagName('img');
+        for (let i = 0; i < images.length; i++) {
+          images[i].style.display = 'block'; 
+        }
+      }
     });
-    
-    const img = canvas.toDataURL('image/png');
-    const pdf = new jsPDF('p', 'mm', 'a4');
-    const pageWidth = pdf.internal.pageSize.getWidth();
-    const pageHeight = (canvas.height * pageWidth) / canvas.width;
-
-    pdf.addImage(img, 'PNG', 0, 0, pageWidth, pageHeight);
-    pdf.save(`ataskaita-${calc.name || 'vairuotojas'}.pdf`);
   };
 
-  // 📲 Dalintis (PNG formatu geriausiam suderinamumui)
-  const handleShare = async () => {
-    const el = document.getElementById('report');
-    if (!el) return;
+  // 📄 Generuoti PDF
+  const generatePDF = async () => {
+    // Jei nėra parašo, paklausiame, bet leidžiame tęsti
+    if (!calc.signature) {
+      const proceed = window.confirm("Ataskaita nepasirašyta. Ar generuoti PDF be parašo?");
+      if (!proceed) return;
+    }
 
     try {
-      // Palaukiame akimirką, kol paslėptas DOM susirendina
-      await new Promise(r => setTimeout(r, 300));
+      const canvas = await generateCanvas('report');
+      if (!canvas) return;
+      
+      const img = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = (canvas.height * pageWidth) / canvas.width;
 
-      const canvas = await html2canvas(el, { 
-        scale: 2, 
-        useCORS: true,
-        backgroundColor: '#ffffff' 
-      });
+      pdf.addImage(img, 'PNG', 0, 0, pageWidth, pageHeight);
+      pdf.save(`ataskaita-${calc.name || 'vairuotojas'}.pdf`);
+    } catch (e) {
+      console.error(e);
+      alert("Įvyko klaida generuojant PDF.");
+    }
+  };
+
+  // 📲 Dalintis
+  const handleShare = async () => {
+    // Jei nėra parašo, paklausiame
+    if (!calc.signature) {
+      const proceed = window.confirm("Ataskaita nepasirašyta. Ar tikrai siųsti be parašo?");
+      if (!proceed) return;
+    }
+
+    try {
+      const canvas = await generateCanvas('report');
+      if (!canvas) return;
 
       canvas.toBlob(async (blob) => {
         if (!blob) return;
@@ -76,7 +100,7 @@ export default function Page() {
             text: `Vairuotojo ${calc.name} ${calc.surname} ataskaita`,
           });
         } else {
-          // Jei dalintis neleidžia (pvz. senas telefonas), atsisiunčiame PDF
+          // Jei telefonas nepalaiko dalinimosi failais, siūlome PDF
           generatePDF();
         }
       }, 'image/png');
@@ -118,6 +142,7 @@ export default function Page() {
       />
 
       <Section title="Patvirtinimas">
+        {/* Čia naudojamas naujasis SignaturePad su išvalymo mygtuku */}
         <SignaturePad 
           signature={calc.signature} 
           setSignature={calc.setSignature} 
@@ -132,7 +157,7 @@ export default function Page() {
         holidayPay={calc.holidayPay} 
       />
 
-      {/* Paslėptas komponentas PDF generavimui */}
+      {/* Paslėptas komponentas, kuris priima visus duomenis + parašą */}
       <HiddenReport {...calc} />
 
       <SalaryActions 
@@ -142,7 +167,7 @@ export default function Page() {
       />
       
       <p className="text-center text-gray-600 text-[10px] pt-4 uppercase tracking-widest">
-        v1.6 – Vaizga App)
+        v1.7 | Vaizga App
       </p>
     </main>
   );

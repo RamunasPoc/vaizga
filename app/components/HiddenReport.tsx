@@ -30,7 +30,7 @@ export default function HiddenReport({
         minHeight: '297mm',
         background: '#ffffff',
         color: '#000000',
-        padding: '25mm', // Standartinės spaudos paraštės
+        padding: '25mm',
         fontFamily: 'Helvetica, Arial, sans-serif',
         fontSize: '12px',
         lineHeight: '1.5',
@@ -165,11 +165,18 @@ export default function HiddenReport({
             marginBottom: '10px'
           }}>
             {signature ? (
+              // PAKEITIMAS: Explicit width/height ir display:block būtina HTML2Canvas
               <img 
                 src={signature} 
                 alt="Parašas" 
-                crossOrigin="anonymous"
-                style={{ maxHeight: '100px', maxWidth: '230px', objectFit: 'contain' }} 
+                width="230"
+                height="100"
+                style={{ 
+                  maxWidth: '100%', 
+                  maxHeight: '100%', 
+                  objectFit: 'contain', 
+                  display: 'block' 
+                }} 
               />
             ) : (
               <div style={{ color: '#ccc', textAlign: 'center' }}>

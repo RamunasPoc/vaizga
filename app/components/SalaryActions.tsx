@@ -28,7 +28,7 @@ export default function SalaryActions({ onGeneratePDF, onShare, onReset }: Props
           className="flex items-center justify-center gap-2 bg-gray-800 hover:bg-gray-750 active:scale-95 p-4 rounded-2xl border border-gray-700 text-gray-300 transition-all"
         >
           <span className="text-lg">💾</span>
-          <span className="text-sm font-semibold">PDF</span>
+          <span className="text-sm font-semibold">Sugeneruoti ataskaitą</span>
         </button>
 
         <button
