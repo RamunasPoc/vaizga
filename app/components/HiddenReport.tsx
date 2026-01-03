@@ -156,18 +156,18 @@ export default function HiddenReport({
       </div>
 
       {/* 5. Parašo sekcija */}
-      <div style={{ marginTop: '80px', display: 'flex', justifyContent: 'flex-end' }}>
+      <div style={{ marginTop: '50px', display: 'flex', justifyContent: 'flex-end' }}>
         <div style={{ textAlign: 'center' }}>
           <div style={{ 
-            width: '240px', 
-            height: '110px', 
+            width: '200px', 
+            height: '80px', 
             border: '1px solid #000', 
             display: 'flex', 
             alignItems: 'center', 
             justifyContent: 'center',
             backgroundColor: '#fff',
             position: 'relative',
-            marginBottom: '10px'
+            marginBottom: '5px'
           }}>
             {signature ? (
               <img 
@@ -177,15 +177,15 @@ export default function HiddenReport({
                 crossOrigin="anonymous"
                 style={{ 
                   display: 'block',
-                  width: '220px',
-                  height: '100px',
+                  maxWidth: '100%',
+                  maxHeight: '100%',
                   objectFit: 'contain'
                 }} 
               />
             ) : (
               <div style={{ color: '#ccc', textAlign: 'center' }}>
-                <p style={{ margin: 0, fontSize: '10px' }}>PATVIRTINTA ELEKTRONINIU BŪDU</p>
-                <p style={{ margin: 0, fontSize: '8px' }}>BE FIZINIO PARAŠO</p>
+                <p style={{ margin: 0, fontSize: '12px' }}>PATVIRTINTA ELEKTRONINIU BŪDU</p>
+                <p style={{ margin: 0, fontSize: '9px' }}>BE FIZINIO PARAŠO</p>
               </div>
             )}
             
