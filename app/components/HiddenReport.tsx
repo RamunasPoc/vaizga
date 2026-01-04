@@ -139,7 +139,7 @@ export default function HiddenReport({
 
       {/* 4. Finansinė suvestinė */}
       <div style={{ marginTop: '30px', backgroundColor: '#f9f9f9', padding: '20px', borderRadius: '4px', border: '1px solid #eee' }}>
-        <h2 style={{ fontSize: '13px', marginBottom: '15px', fontWeight: 'bold', textTransform: 'uppercase' }}>Apskaičiuotas atlygis (BRUTO)</h2>
+        <h2 style={{ fontSize: '13px', marginBottom: '15px', fontWeight: 'bold', textTransform: 'uppercase' }}>Apskaičiuotas atlygis po mokesčių (į rankas) </h2>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
           <span>Bazinis užmokestis už kilometrus:</span>
           <span>{kmPay.toFixed(2)} €</span>
