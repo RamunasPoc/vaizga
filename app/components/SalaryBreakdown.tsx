@@ -53,7 +53,7 @@ export default function SalaryBreakdown({
           <span>{total.toFixed(2)} €</span>
         </div>
         <p className="text-[10px] text-gray-500 mt-1 text-right italic">
-          *Suma nurodyta po mokesčių.
+          *Suma nurodyta po mokesčių (į rankas).
         </p>
       </div>
     </div>
