@@ -23,7 +23,7 @@ export default function SalaryBreakdown({
   return (
     <div className="bg-gray-800 rounded-xl p-4 space-y-2 text-sm shadow-lg border border-gray-700">
       <h3 className="font-semibold text-base mb-3 border-b border-gray-700 pb-2 text-gray-100">
-        Algos sudėtis (Bruto)
+        Algos sudėtis 
       </h3>
 
       <Row label="Kilometrai" value={kmPay} />
@@ -53,7 +53,7 @@ export default function SalaryBreakdown({
           <span>{total.toFixed(2)} €</span>
         </div>
         <p className="text-[10px] text-gray-500 mt-1 text-right italic">
-          *Suma nurodyta prieš mokesčius (Bruto)
+          *Suma nurodyta po mokesčių.
         </p>
       </div>
     </div>
