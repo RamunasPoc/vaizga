@@ -24,7 +24,7 @@ export default function ExtraWorksSection({
   removeExtraWork,
 }: Props) {
   return (
-    <Section title="Papildomi darbai / Ilgesni pakrovimai">
+    <Section title="Papildomi darbai / Ilgesni  nei 1 val pakrovimai ir iškrovimai">
       <div className="space-y-4">
         <p className="text-[11px] text-gray-500 italic px-1">
           Nurodykite atliktus darbus, datą, aprašymą ir laiką.

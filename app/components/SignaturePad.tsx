@@ -67,7 +67,7 @@ export default function SignaturePad({ signature, setSignature }: Props) {
         )}
       </div>
       <p className="text-[10px] text-gray-500 mt-2 text-center uppercase tracking-tighter">
-        Parašas automatiškai išsaugomas pakėlus pirštą/pelę
+        Parašas automatiškai išsaugomas 
       </p>
     </div>
   );
