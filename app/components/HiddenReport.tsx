@@ -23,12 +23,15 @@ export default function HiddenReport({
   sleepPay,
   signature,
 }: SalaryCalculatorState) {
+  // Pagalbinė funkcija degalinių laikui skaičiuoti
+  const getStationHours = (count: number | string) => (Number(count || 0) * 20) / 60;
+
   return (
     <div
       id="report"
       style={{
         position: 'fixed',
-        left: '-9999px', // Iškeliame toli už ekrano ribų vietoj opacity mažinimo
+        left: '-9999px',
         top: '0',
         width: '210mm',
         minHeight: '297mm',
@@ -67,16 +70,16 @@ export default function HiddenReport({
               <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{loads || 0} vnt. ({loadHours || 0} val.)</td>
             </tr>
             <tr style={{ borderBottom: '1px solid #eee' }}>
-              <td style={{ padding: '6px 0' }}>Degalinės:</td>
-              <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{stations || 0} vnt.</td>
+              <td style={{ padding: '6px 0' }}>Degalinės (20 min./vnt.):</td>
+              <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{stations || 0} vnt. ({getStationHours(stations || 0).toFixed(2)} val.)</td>
             </tr>
             <tr style={{ borderBottom: '1px solid #eee' }}>
               <td style={{ padding: '6px 0' }}>Naktinės pamainos:</td>
-              <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{nightShifts || 0}</td>
+              <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{nightShifts || 0} nakt.</td>
             </tr>
             <tr style={{ borderBottom: '1px solid #eee' }}>
               <td style={{ padding: '6px 0' }}>Nakvynės vilkike:</td>
-              <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{sleepOvers || 0}</td>
+              <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{sleepOvers || 0} nakt.</td>
             </tr>
           </tbody>
         </table>
@@ -91,7 +94,7 @@ export default function HiddenReport({
               <tr style={{ borderBottom: '1px solid #000', textAlign: 'left', fontSize: '10px' }}>
                 <th style={{ padding: '4px' }}>Data</th>
                 <th style={{ padding: '4px' }}>Aprašymas</th>
-                <th style={{ padding: '4px', textAlign: 'right' }}>Valandos</th>
+                <th style={{ padding: '4px', textAlign: 'right' }}>Laikas (val.)</th>
               </tr>
             </thead>
             <tbody>
@@ -99,7 +102,7 @@ export default function HiddenReport({
                 <tr key={i} style={{ borderBottom: '1px solid #eee', fontSize: '11px' }}>
                   <td style={{ padding: '6px 4px' }}>{w.date}</td>
                   <td style={{ padding: '6px 4px' }}>{w.description}</td>
-                  <td style={{ padding: '6px 4px', textAlign: 'right' }}>{w.hours} val.</td>
+                  <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 'bold' }}>{w.hours} val.</td>
                 </tr>
               ))}
             </tbody>
@@ -110,27 +113,37 @@ export default function HiddenReport({
       {/* 4. ŠVENTINĖS DIENOS */}
       {holidayWorks.length > 0 && (
         <div style={{ marginBottom: '20px' }}>
-          <h2 style={{ fontSize: '12px', backgroundColor: '#fff0f0', color: '#b91c1c', padding: '5px 10px', marginBottom: '10px', fontWeight: 'bold', textTransform: 'uppercase' }}>3. Darbas šventinėmis dienomis (x2)</h2>
+          <h2 style={{ fontSize: '12px', backgroundColor: '#fff0f0', color: '#b91c1c', padding: '5px 10px', marginBottom: '10px', fontWeight: 'bold', textTransform: 'uppercase' }}>3. Darbas šventinėmis dienomis (Dvigubas laikas)</h2>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
               <tr style={{ borderBottom: '1px solid #b91c1c', textAlign: 'left', fontSize: '10px', color: '#b91c1c' }}>
                 <th style={{ padding: '4px' }}>Data</th>
-                <th style={{ padding: '4px', textAlign: 'right' }}>KM</th>
-                <th style={{ padding: '4px', textAlign: 'right' }}>Pakr.</th>
-                <th style={{ padding: '4px', textAlign: 'right' }}>Deg.</th>
+                <th style={{ padding: '4px', textAlign: 'right' }}>KM (val.)</th>
+                <th style={{ padding: '4px', textAlign: 'right' }}>Pakr. (val.)</th>
+                <th style={{ padding: '4px', textAlign: 'right' }}>Deg. (val.)</th>
+                <th style={{ padding: '4px', textAlign: 'right' }}>Iš viso val.</th>
               </tr>
             </thead>
             <tbody>
-              {holidayWorks.map((d, i) => (
-                <tr key={i} style={{ borderBottom: '1px solid #fee2e2', fontSize: '11px' }}>
-                  <td style={{ padding: '6px 4px' }}>{d.date}</td>
-                  <td style={{ padding: '6px 4px', textAlign: 'right' }}>{d.km} km</td>
-                  <td style={{ padding: '6px 4px', textAlign: 'right' }}>{d.loads} vnt.</td>
-                  <td style={{ padding: '6px 4px', textAlign: 'right' }}>{d.stations} vnt.</td>
-                </tr>
-              ))}
+              {holidayWorks.map((d, i) => {
+                const hKmVal = Number(d.km || 0) * 0.015;
+                const hLoadVal = Number(d.loads || 0) * 2;
+                const hStationVal = (Number(d.stations || 0) * 20) / 60;
+                const hDayTotal = hKmVal + hLoadVal + hStationVal;
+
+                return (
+                  <tr key={i} style={{ borderBottom: '1px solid #fee2e2', fontSize: '11px' }}>
+                    <td style={{ padding: '6px 4px' }}>{d.date}</td>
+                    <td style={{ padding: '6px 4px', textAlign: 'right' }}>{d.km} ({hKmVal.toFixed(2)})</td>
+                    <td style={{ padding: '6px 4px', textAlign: 'right' }}>{d.loads} ({hLoadVal.toFixed(2)})</td>
+                    <td style={{ padding: '6px 4px', textAlign: 'right' }}>{d.stations} ({hStationVal.toFixed(2)})</td>
+                    <td style={{ padding: '6px 4px', textAlign: 'right', fontWeight: 'bold' }}>{hDayTotal.toFixed(2)} val.</td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
+          <p style={{ fontSize: '9px', color: '#b91c1c', fontStyle: 'italic', marginTop: '5px' }}>* Šventinių dienų valandos dauginamos iš 2 skaičiuojant galutinį atlygį.</p>
         </div>
       )}
 
@@ -139,16 +152,16 @@ export default function HiddenReport({
         <h2 style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '10px', textTransform: 'uppercase' }}>Finansinė suvestinė (EUR)</h2>
         
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-          <span>Už nuvažiuotus kilometrus:</span>
+          <span>Bazinis užmokestis (KM):</span>
           <span>{kmPay.toFixed(2)} €</span>
         </div>
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-          <span>Už laiką (Pakr./Deg./Papildomi):</span>
+          <span>Už sugaištą laiką (Valandos):</span>
           <span>{(loadPay + stationPay + extraPay).toFixed(2)} €</span>
         </div>
         {nightPay > 0 && (
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-            <span>Priedas už naktinį darbą:</span>
+            <span>Priedas už naktinį darbą (naktys):</span>
             <span>{nightPay.toFixed(2)} €</span>
           </div>
         )}
@@ -159,8 +172,8 @@ export default function HiddenReport({
           </div>
         )}
         {holidayPay > 0 && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', color: '#b91c1c' }}>
-            <span>Priedas už šventines dienas:</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', color: '#b91c1c', fontWeight: 'bold' }}>
+            <span>Priedas už šventines dienas (x2):</span>
             <span>{holidayPay.toFixed(2)} €</span>
           </div>
         )}
