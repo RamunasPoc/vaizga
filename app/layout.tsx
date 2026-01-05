@@ -1,7 +1,8 @@
-import type { Metadata, Viewport } from "next"; // Pridėtas Viewport
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/react";
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -12,33 +13,30 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-// 1. Pridedame PWA nustatymus į metadata
+// 1. Metadata nustatymai PWA ir SEO
 export const metadata: Metadata = {
   title: "Vaizga",
-  description: "Algos skaičiuoklė vairuotojams",
-  // Nurodome kelią iki manifest failo (jį sukursime 2 žingsnyje)
+  description: "Algos skaičiuoklė",
   manifest: "/manifest.json", 
   icons: {
     icon: "/LOGO.png",
     shortcut: "/LOGO.png",
-    apple: "/LOGO.png", // Šita ikona bus naudojama ant iPhone ekrano
+    apple: "/LOGO.png", 
   },
-  // iOS specifiniai nustatymai, kad atsidarytų kaip APP
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: "Vaizga",
-    // startupImage: [] // Galima pridėti vėliau
   },
 };
 
-// 2. Rekomenduojama: Užfiksuoti mastelį, kad atrodytų kaip native app (neleisti zoominti)
+// 2. Viewport nustatymai (Užtikrina APP pojūtį ir išjungia nepageidaujamą priartinimą)
 export const viewport: Viewport = {
-  themeColor: "#ffffff", // Pakeisk į savo app spalvą
+  themeColor: "#ffffff", // Galite pakeisti į #000000, jei naudojate tamsų režimą
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  userScalable: false, // Neleidžia vartotojui "zoominti" (geriau atrodo kaip app)
+  userScalable: false,
 };
 
 export default function RootLayout({
@@ -47,11 +45,37 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="lt">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        
+        {/* Vercel Analytics skirta srauto stebėjimui */}
+        <Analytics />
+
+        {/* Service Worker registracija. 
+          Ji aktyvuoja jūsų public/sw.js failą, kuris leidžia 
+          programėlei veikti greičiau ir stabiliau.
+        */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js').then(
+                    function(registration) {
+                      console.log('SW registracija sėkminga: ', registration.scope);
+                    },
+                    function(err) {
+                      console.log('SW registracija nepavyko: ', err);
+                    }
+                  );
+                });
+              }
+            `,
+          }}
+        />
       </body>
     </html>
   );
