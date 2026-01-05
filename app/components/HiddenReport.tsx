@@ -9,7 +9,7 @@ export default function HiddenReport({
   loads,
   stations,
   nightShifts,
-  sleepOvers, // Pridėta
+  sleepOvers,
   extraWorks,
   holidayWorks,
   loadHours,
@@ -20,7 +20,7 @@ export default function HiddenReport({
   extraPay,
   holidayPay,
   nightPay,
-  sleepPay,   // Pridėta
+  sleepPay,
   signature,
 }: SalaryCalculatorState) {
   return (
@@ -28,82 +28,78 @@ export default function HiddenReport({
       id="report"
       style={{
         position: 'fixed',
-        left: '0',
+        left: '-9999px', // Iškeliame toli už ekrano ribų vietoj opacity mažinimo
         top: '0',
         width: '210mm',
         minHeight: '297mm',
         background: '#ffffff',
         color: '#000000',
-        padding: '25mm',
+        padding: '20mm',
         fontFamily: 'Helvetica, Arial, sans-serif',
         fontSize: '12px',
-        lineHeight: '1.5',
-        zIndex: -500,
-        opacity: 0.02, 
-        pointerEvents: 'none',
+        lineHeight: '1.4',
+        zIndex: -1000,
       }}
     >
-      {/* Dokumento viršūnė */}
+      {/* 1. ANTRAŠTĖ */}
       <div style={{ borderBottom: '2px solid #000', paddingBottom: '10px', marginBottom: '20px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
         <div>
-          <h1 style={{ fontSize: '26px', fontWeight: 'bold', margin: 0, textTransform: 'uppercase', letterSpacing: '-1px' }}>Darbo Ataskaita</h1>
-          <p style={{ color: '#666', margin: 0, fontSize: '10px' }}>Sugeneruota per Vaizga App • {new Date().toLocaleTimeString('lt-LT')}</p>
+          <h1 style={{ fontSize: '24px', fontWeight: 'bold', margin: 0, textTransform: 'uppercase' }}>Darbo Ataskaita</h1>
+          <p style={{ color: '#666', margin: 0, fontSize: '10px' }}>Vaizga App • {new Date().toLocaleDateString('lt-LT')} {new Date().toLocaleTimeString('lt-LT')}</p>
         </div>
         <div style={{ textAlign: 'right' }}>
-          <p style={{ margin: 0, fontSize: '16px', fontWeight: 'bold', textTransform: 'uppercase' }}>{name || '—'} {surname || ''}</p>
-          <p style={{ margin: 0, color: '#333', fontWeight: 'bold' }}>{new Date().toLocaleDateString('lt-LT')}</p>
+          <p style={{ margin: 0, fontSize: '16px', fontWeight: 'bold' }}>{name || '—'} {surname || ''}</p>
+          <p style={{ margin: 0, color: '#666' }}>Vairuotojo suvestinė</p>
         </div>
       </div>
 
-      {/* 1. Pagrindiniai duomenys */}
-      <div style={{ marginBottom: '25px' }}>
-        <h2 style={{ fontSize: '13px', backgroundColor: '#eee', padding: '5px 10px', marginBottom: '10px', fontWeight: 'bold', textTransform: 'uppercase' }}>1. Pagrindiniai duomenys (Mėnesio suvestinė)</h2>
+      {/* 2. PAGRINDINĖ LENTELĖ */}
+      <div style={{ marginBottom: '20px' }}>
+        <h2 style={{ fontSize: '12px', backgroundColor: '#f4f4f4', padding: '5px 10px', marginBottom: '10px', fontWeight: 'bold', textTransform: 'uppercase' }}>1. Mėnesio veiklos suvestinė</h2>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <tbody>
-            <tr style={{ borderBottom: '1px solid #f0f0f0' }}>
-              <td style={{ padding: '8px 0' }}>Bendri nuvažiuoti kilometrai:</td>
+            <tr style={{ borderBottom: '1px solid #eee' }}>
+              <td style={{ padding: '6px 0' }}>Bendri nuvažiuoti kilometrai:</td>
               <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{km || 0} km</td>
             </tr>
-            <tr style={{ borderBottom: '1px solid #f0f0f0' }}>
-              <td style={{ padding: '8px 0' }}>Pakrovimai terminale (2 val./vnt):</td>
+            <tr style={{ borderBottom: '1px solid #eee' }}>
+              <td style={{ padding: '6px 0' }}>Pakrovimai / Iškrovimai (terminale):</td>
               <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{loads || 0} vnt. ({loadHours || 0} val.)</td>
             </tr>
-            <tr style={{ borderBottom: '1px solid #f0f0f0' }}>
-              <td style={{ padding: '8px 0' }}>Degalinės (20 min./vnt):</td>
-              <td style={{ textAlign: 'right', fontWeight: 'bold' }}>
-                {stations || 0} vnt. ({(Number(stations || 0) * 20 / 60).toFixed(2)} val.)
-              </td>
+            <tr style={{ borderBottom: '1px solid #eee' }}>
+              <td style={{ padding: '6px 0' }}>Degalinės:</td>
+              <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{stations || 0} vnt.</td>
             </tr>
-            <tr style={{ borderBottom: '1px solid #f0f0f0' }}>
-              <td style={{ padding: '8px 0' }}>Naktinės pamainos (+20€ priedas):</td>
-              <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{nightShifts || 0} nakt.</td>
+            <tr style={{ borderBottom: '1px solid #eee' }}>
+              <td style={{ padding: '6px 0' }}>Naktinės pamainos:</td>
+              <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{nightShifts || 0}</td>
             </tr>
-            <tr style={{ borderBottom: '1px solid #f0f0f0' }}>
-              <td style={{ padding: '8px 0' }}>Nakvynės vilkike (+20€ priedas):</td>
-              <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{sleepOvers || 0} nakt.</td>
+            <tr style={{ borderBottom: '1px solid #eee' }}>
+              <td style={{ padding: '6px 0' }}>Nakvynės vilkike:</td>
+              <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{sleepOvers || 0}</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      {/* 2. Papildomi darbai */}
+      {/* 3. PAPILDOMI DARBAI */}
       {extraWorks.length > 0 && (
-        <div style={{ marginBottom: '25px' }}>
-          <h2 style={{ fontSize: '13px', backgroundColor: '#eee', padding: '5px 10px', marginBottom: '10px', fontWeight: 'bold', textTransform: 'uppercase' }}>2. Papildomi darbai</h2>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
+        <div style={{ marginBottom: '20px' }}>
+          <h2 style={{ fontSize: '12px', backgroundColor: '#f4f4f4', padding: '5px 10px', marginBottom: '10px', fontWeight: 'bold', textTransform: 'uppercase' }}>2. Papildomi darbai</h2>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ borderBottom: '2px solid #eee', textAlign: 'left' }}>
-                <th style={{ padding: '8px' }}>Data</th>
-                <th style={{ padding: '8px' }}>Aprašymas</th>
-                <th style={{ padding: '8px', textAlign: 'right' }}>Valandos</th>
+              <tr style={{ borderBottom: '1px solid #000', textAlign: 'left', fontSize: '10px' }}>
+                <th style={{ padding: '4px' }}>Data</th>
+                <th style={{ padding: '4px' }}>Aprašymas</th>
+                <th style={{ padding: '4px', textAlign: 'right' }}>Valandos</th>
               </tr>
             </thead>
             <tbody>
               {extraWorks.map((w, i) => (
-                <tr key={i} style={{ borderBottom: '1px solid #f9f9f9' }}>
-                  <td style={{ padding: '8px' }}>{w.date}</td>
-                  <td style={{ padding: '8px' }}>{w.description}</td>
-                  <td style={{ padding: '8px', textAlign: 'right', fontWeight: 'bold' }}>{w.hours} val.</td>
+                <tr key={i} style={{ borderBottom: '1px solid #eee', fontSize: '11px' }}>
+                  <td style={{ padding: '6px 4px' }}>{w.date}</td>
+                  <td style={{ padding: '6px 4px' }}>{w.description}</td>
+                  <td style={{ padding: '6px 4px', textAlign: 'right' }}>{w.hours} val.</td>
                 </tr>
               ))}
             </tbody>
@@ -111,141 +107,82 @@ export default function HiddenReport({
         </div>
       )}
 
-      {/* 3. Šventinės dienos */}
+      {/* 4. ŠVENTINĖS DIENOS */}
       {holidayWorks.length > 0 && (
-        <div style={{ marginBottom: '25px' }}>
-          <h2 style={{ fontSize: '13px', backgroundColor: '#fef2f2', color: '#b91c1c', padding: '5px 10px', marginBottom: '10px', fontWeight: 'bold', textTransform: 'uppercase' }}>3. Šventinės dienos (Dvigubas tarifas)</h2>
-          <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px' }}>
+        <div style={{ marginBottom: '20px' }}>
+          <h2 style={{ fontSize: '12px', backgroundColor: '#fff0f0', color: '#b91c1c', padding: '5px 10px', marginBottom: '10px', fontWeight: 'bold', textTransform: 'uppercase' }}>3. Darbas šventinėmis dienomis (x2)</h2>
+          <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid #fee2e2', textAlign: 'left', color: '#b91c1c' }}>
-                <th style={{ padding: '8px' }}>Data</th>
-                <th style={{ padding: '8px', textAlign: 'right' }}>KM (val.)</th>
-                <th style={{ padding: '8px', textAlign: 'right' }}>Pakr.</th>
-                <th style={{ padding: '8px', textAlign: 'right' }}>Deg.</th>
-                <th style={{ padding: '8px', textAlign: 'right' }}>Bendra dienos trukmė</th>
+              <tr style={{ borderBottom: '1px solid #b91c1c', textAlign: 'left', fontSize: '10px', color: '#b91c1c' }}>
+                <th style={{ padding: '4px' }}>Data</th>
+                <th style={{ padding: '4px', textAlign: 'right' }}>KM</th>
+                <th style={{ padding: '4px', textAlign: 'right' }}>Pakr.</th>
+                <th style={{ padding: '4px', textAlign: 'right' }}>Deg.</th>
               </tr>
             </thead>
             <tbody>
-              {holidayWorks.map((d, i) => {
-                const kmTimeEquivalent = Number(d.km || 0) * 0.015;
-                const loadTime = Number(d.loads || 0) * 2;
-                const stationTime = (Number(d.stations || 0) * 20) / 60;
-                const totalDayHours = kmTimeEquivalent + loadTime + stationTime;
-
-                return (
-                  <tr key={i} style={{ borderBottom: '1px solid #fff5f5' }}>
-                    <td style={{ padding: '8px' }}>{d.date}</td>
-                    <td style={{ padding: '8px', textAlign: 'right' }}>
-                      {d.km} km ({kmTimeEquivalent.toFixed(2)} val.)
-                    </td>
-                    <td style={{ padding: '8px', textAlign: 'right' }}>{d.loads} vnt.</td>
-                    <td style={{ padding: '8px', textAlign: 'right' }}>{d.stations} vnt.</td>
-                    <td style={{ padding: '8px', textAlign: 'right', fontWeight: 'bold' }}>
-                      {totalDayHours.toFixed(2)} val.
-                    </td>
-                  </tr>
-                );
-              })}
+              {holidayWorks.map((d, i) => (
+                <tr key={i} style={{ borderBottom: '1px solid #fee2e2', fontSize: '11px' }}>
+                  <td style={{ padding: '6px 4px' }}>{d.date}</td>
+                  <td style={{ padding: '6px 4px', textAlign: 'right' }}>{d.km} km</td>
+                  <td style={{ padding: '6px 4px', textAlign: 'right' }}>{d.loads} vnt.</td>
+                  <td style={{ padding: '6px 4px', textAlign: 'right' }}>{d.stations} vnt.</td>
+                </tr>
+              ))}
             </tbody>
           </table>
-          <p style={{ fontSize: '9px', color: '#b91c1c', marginTop: '4px', fontStyle: 'italic' }}>
-            * Šventinę dieną visi įkainiai (įskaitant kilometrus paverstus valandomis) dauginami iš 2.
-          </p>
         </div>
       )}
 
-      {/* 4. Finansinė suvestinė */}
-      <div style={{ marginTop: '30px', backgroundColor: '#f9f9f9', padding: '20px', borderRadius: '4px', border: '1px solid #eee' }}>
-        <h2 style={{ fontSize: '13px', marginBottom: '15px', fontWeight: 'bold', textTransform: 'uppercase' }}>Apskaičiuotas atlygis po mokesčių (į rankas)</h2>
+      {/* 5. FINANSINĖ DALIS */}
+      <div style={{ marginTop: '30px', backgroundColor: '#fdfdfd', border: '1px solid #ddd', padding: '15px' }}>
+        <h2 style={{ fontSize: '12px', fontWeight: 'bold', marginBottom: '10px', textTransform: 'uppercase' }}>Finansinė suvestinė (EUR)</h2>
         
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-          <span>Bazinis užmokestis už kilometrus (0.114 €/km):</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+          <span>Už nuvažiuotus kilometrus:</span>
           <span>{kmPay.toFixed(2)} €</span>
         </div>
-        
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-          <span>Užmokestis už laiką (Pakr./Deg./Papildomi):</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+          <span>Už laiką (Pakr./Deg./Papildomi):</span>
           <span>{(loadPay + stationPay + extraPay).toFixed(2)} €</span>
         </div>
-
-        {sleepPay > 0 && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-            <span>Kompensacija už nakvynes ({sleepOvers} nakt.):</span>
-            <span>{sleepPay.toFixed(2)} €</span>
-          </div>
-        )}
-
         {nightPay > 0 && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-            <span>Priedas už naktines pamainas ({nightShifts} nakt.):</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+            <span>Priedas už naktinį darbą:</span>
             <span>{nightPay.toFixed(2)} €</span>
           </div>
         )}
-
+        {sleepPay > 0 && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+            <span>Kompensacija už nakvynes:</span>
+            <span>{sleepPay.toFixed(2)} €</span>
+          </div>
+        )}
         {holidayPay > 0 && (
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', color: '#b91c1c', fontWeight: 'bold' }}>
-            <span>Papildomas priedas už šventines dienas (x2):</span>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', color: '#b91c1c' }}>
+            <span>Priedas už šventines dienas:</span>
             <span>{holidayPay.toFixed(2)} €</span>
           </div>
         )}
 
-        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '15px', paddingTop: '15px', borderTop: '2px solid #000', fontSize: '20px', fontWeight: 'bold' }}>
-          <span>GALUTINĖ SUMA:</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px', paddingTop: '10px', borderTop: '2px solid #000', fontSize: '18px', fontWeight: 'bold' }}>
+          <span>IŠ VISO (į rankas):</span>
           <span>{total.toFixed(2)} €</span>
         </div>
       </div>
 
-      {/* 5. Parašo sekcija */}
-      <div style={{ marginTop: '50px', display: 'flex', justifyContent: 'flex-end' }}>
+      {/* 6. PARAŠAS */}
+      <div style={{ marginTop: '40px', display: 'flex', justifyContent: 'flex-end' }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ 
-            width: '200px', 
-            height: '80px', 
-            border: '1px solid #000', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center',
-            backgroundColor: '#fff',
-            position: 'relative',
-            marginBottom: '5px'
-          }}>
-            {signature ? (
-              <img 
-                id="report-signature-img"
-                src={signature} 
-                alt="Vairuotojo parašas" 
-                crossOrigin="anonymous"
-                style={{ 
-                  display: 'block',
-                  maxWidth: '100%',
-                  maxHeight: '100%',
-                  objectFit: 'contain'
-                }} 
-              />
-            ) : (
-              <div style={{ color: '#ccc', textAlign: 'center' }}>
-                <p style={{ margin: 0, fontSize: '12px' }}>PATVIRTINTA ELEKTRONINIU BŪDU</p>
-                <p style={{ margin: 0, fontSize: '9px' }}>BE FIZINIO PARAŠO</p>
-              </div>
+          <p style={{ fontSize: '10px', marginBottom: '5px', color: '#666' }}>Patvirtinta vairuotojo parašu:</p>
+          <div style={{ width: '200px', height: '80px', border: '1px solid #ccc', marginBottom: '5px' }}>
+            {signature && (
+              <img src={signature} alt="Parašas" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
             )}
-            
-            <span style={{ position: 'absolute', bottom: '2px', right: '5px', fontSize: '7px', color: '#999', textTransform: 'uppercase' }}>
-              ID: {Math.random().toString(36).substr(2, 9).toUpperCase()}
-            </span>
           </div>
-
-          <p style={{ margin: '0', fontSize: '14px', fontWeight: 'bold', textTransform: 'uppercase' }}>{name} {surname}</p>
-          <p style={{ margin: '2px 0', fontSize: '10px', color: '#666', fontStyle: 'italic' }}>Vairuotojo patvirtinimas</p>
-          
-          <div style={{ marginTop: '10px', fontSize: '10px', backgroundColor: '#333', color: '#fff', padding: '3px 10px', borderRadius: '2px', display: 'inline-block' }}>
-            {new Date().toLocaleString('lt-LT', { dateStyle: 'long', timeStyle: 'short' })}
-          </div>
+          <p style={{ fontWeight: 'bold', margin: 0 }}>{name} {surname}</p>
+          <p style={{ fontSize: '9px', color: '#999' }}>ID: {Math.random().toString(36).substring(7).toUpperCase()}</p>
         </div>
-      </div>
-
-      <div style={{ position: 'absolute', bottom: '40px', left: '40px', right: '40px', fontSize: '9px', color: '#aaa', textAlign: 'center', borderTop: '1px solid #eee', paddingTop: '10px' }}>
-        Šis dokumentas yra automatiškai sugeneruota darbo laiko ir užmokesčio suvestinė. 
-        Pateikdamas šią ataskaitą, vairuotojas patvirtina duomenų teisingumą.
       </div>
     </div>
   );
