@@ -60,7 +60,7 @@ export default function ExtraWorksSection({
                 />
 
                 <NumberInput
-                  label="Sugaištos valandos"
+                  label="Sugaištas laikas"
                   value={work.hours}
                   setValue={(val) => updateExtraWork(index, 'hours', val)}
                   icon="⏱️"
