@@ -9,6 +9,7 @@ export default function HiddenReport({
   loads,
   stations,
   nightShifts,
+  sleepOvers, // Pridėta
   extraWorks,
   holidayWorks,
   loadHours,
@@ -19,6 +20,7 @@ export default function HiddenReport({
   extraPay,
   holidayPay,
   nightPay,
+  sleepPay,   // Pridėta
   signature,
 }: SalaryCalculatorState) {
   return (
@@ -76,6 +78,10 @@ export default function HiddenReport({
               <td style={{ padding: '8px 0' }}>Naktinės pamainos (+20€ priedas):</td>
               <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{nightShifts || 0} nakt.</td>
             </tr>
+            <tr style={{ borderBottom: '1px solid #f0f0f0' }}>
+              <td style={{ padding: '8px 0' }}>Nakvynės vilkike (+20€ priedas):</td>
+              <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{sleepOvers || 0} nakt.</td>
+            </tr>
           </tbody>
         </table>
       </div>
@@ -105,7 +111,7 @@ export default function HiddenReport({
         </div>
       )}
 
-      {/* 3. Šventinės dienos - ATNAUJINTA LOGIKA SU KM VALANDOMIS */}
+      {/* 3. Šventinės dienos */}
       {holidayWorks.length > 0 && (
         <div style={{ marginBottom: '25px' }}>
           <h2 style={{ fontSize: '13px', backgroundColor: '#fef2f2', color: '#b91c1c', padding: '5px 10px', marginBottom: '10px', fontWeight: 'bold', textTransform: 'uppercase' }}>3. Šventinės dienos (Dvigubas tarifas)</h2>
@@ -121,7 +127,6 @@ export default function HiddenReport({
             </thead>
             <tbody>
               {holidayWorks.map((d, i) => {
-                // Konvertuojame KM į valandas (100km = 1.5val)
                 const kmTimeEquivalent = Number(d.km || 0) * 0.015;
                 const loadTime = Number(d.loads || 0) * 2;
                 const stationTime = (Number(d.stations || 0) * 20) / 60;
@@ -162,7 +167,14 @@ export default function HiddenReport({
           <span>Užmokestis už laiką (Pakr./Deg./Papildomi):</span>
           <span>{(loadPay + stationPay + extraPay).toFixed(2)} €</span>
         </div>
-        
+
+        {sleepPay > 0 && (
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+            <span>Kompensacija už nakvynes ({sleepOvers} nakt.):</span>
+            <span>{sleepPay.toFixed(2)} €</span>
+          </div>
+        )}
+
         {nightPay > 0 && (
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
             <span>Priedas už naktines pamainas ({nightShifts} nakt.):</span>

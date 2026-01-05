@@ -26,7 +26,7 @@ export default function Page() {
   };
 
   /**
-   * Patobulinta Canvas generavimo funkcija su "Force Load" parašui
+   * Patobulinta Canvas generavimo funkcija
    */
   const generateCanvas = async (elementId: string) => {
     const el = document.getElementById(elementId);
@@ -58,13 +58,6 @@ export default function Page() {
             reportEl.style.opacity = '1';
             reportEl.style.visibility = 'visible';
             reportEl.style.display = 'block';
-          }
-          
-          const images = clonedDoc.getElementsByTagName('img');
-          for (let i = 0; i < images.length; i++) {
-            images[i].style.display = 'block';
-            images[i].style.visibility = 'visible';
-            images[i].style.opacity = '1';
           }
         }
       });
@@ -136,13 +129,29 @@ export default function Page() {
         <NumberInput label="Nuvažiuoti km" value={calc.km} setValue={calc.setKm} icon="🛣️" />
         <NumberInput label="Pakrovimai terminale" value={calc.loads} setValue={calc.setLoads} icon="📦" />
         <NumberInput label="Degalinės (20 min.)" value={calc.stations} setValue={calc.setStations} icon="⛽" />
-        {/* NAUJAS LAUKAS NAKTINĖMS PAMAINOMS */}
-        <NumberInput 
-          label="Naktinės pamainos (+20€)" 
-          value={calc.nightShifts} 
-          setValue={calc.setNightShifts} 
-          icon="🌙" 
-        />
+      </Section>
+
+      {/* Sugrupuota priedų sekcija */}
+      <Section title="Darbo sąlygos ir priedai">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <NumberInput
+            label="Naktinės pamainos (22:00-06:00)"
+            value={calc.nightShifts}
+            setValue={calc.setNightShifts}
+            icon="🌙"
+            placeholder="Kiek naktų dirbta..."
+          />
+          <NumberInput
+            label="Nakvynės vilkike"
+            value={calc.sleepOvers}
+            setValue={calc.setSleepOvers}
+            icon="🛌"
+            placeholder="Kiek naktų miegota..."
+          />
+        </div>
+        <p className="text-[10px] text-gray-500 mt-2 italic">
+          * Už kiekvieną naktinę pamainą ir nakvynę pridedama po 20.00 €.
+        </p>
       </Section>
 
       <ExtraWorksSection 
@@ -166,16 +175,17 @@ export default function Page() {
         />
       </Section>
 
-      {/* Papildyta naktinio darbo suma */}
       <SalaryBreakdown
         kmPay={calc.kmPay}
         loadPay={calc.loadPay}
         stationPay={calc.stationPay}
         extraPay={calc.extraPay}
         holidayPay={calc.holidayPay} 
-        nightPay={calc.nightPay} 
+        nightPay={calc.nightPay}
+        sleepPay={calc.sleepPay} // Pridėta nakvynių suma
       />
 
+      {/* Paslėpta ataskaita generavimui */}
       <HiddenReport {...calc} />
 
       <SalaryActions 
@@ -185,7 +195,7 @@ export default function Page() {
       />
       
       <p className="text-center text-gray-600 text-[10px] pt-4 uppercase tracking-widest">
-        v2.0 | Vaizga App
+        v2.1 | Vaizga App
       </p>
     </main>
   );

@@ -32,9 +32,11 @@ export interface SalaryCalculatorState {
   setLoads: (v: number | '') => void;
   setStations: (v: number | '') => void;
 
-  // NAUJA: Naktinių pamainų būsena
+  // Naktinės pamainos ir nakvynės
   nightShifts: number | '';
   setNightShifts: (v: number | '') => void;
+  sleepOvers: number | '';
+  setSleepOvers: (v: number | '') => void;
 
   loadHours: number;
 
@@ -64,7 +66,8 @@ export interface SalaryCalculatorState {
   stationPay: number;
   extraPay: number;
   holidayPay: number;
-  nightPay: number; // NAUJA: Apskaičiuota naktinio darbo suma
+  nightPay: number; 
+  sleepPay: number; // NAUJA
   total: number;
 }
 
@@ -78,6 +81,7 @@ const RATES = {
   HOURLY: 7.6,         
   STATION_MIN: 20,     
   NIGHT_SHIFT: 20,     // 20 € už naktinę pamainą
+  SLEEP_OVER: 20,      // 20 € už nakvynę vilkike
 };
 
 /* =======================
@@ -92,8 +96,8 @@ export function useSalaryCalculator(): SalaryCalculatorState {
   const [loads, setLoads] = useState<number | ''>('');
   const [stations, setStations] = useState<number | ''>('');
   
-  // NAUJA: Naktinių pamainų būsena
   const [nightShifts, setNightShifts] = useState<number | ''>('');
+  const [sleepOvers, setSleepOvers] = useState<number | ''>('');
 
   const [extraWorks, setExtraWorks] = useState<ExtraWork[]>([]);
   const [holidayWorks, setHolidayWorks] = useState<HolidayWork[]>([]);
@@ -112,8 +116,8 @@ export function useSalaryCalculator(): SalaryCalculatorState {
       ? (Number(stations) * RATES.STATION_MIN / 60) * RATES.HOURLY
       : 0;
 
-  // NAUJA: Naktinių pamainų skaičiavimas
   const nightPay = nightShifts !== '' ? Number(nightShifts) * RATES.NIGHT_SHIFT : 0;
+  const sleepPay = sleepOvers !== '' ? Number(sleepOvers) * RATES.SLEEP_OVER : 0;
 
   /* =======================
      PAPILDOMI DARBAI
@@ -169,17 +173,17 @@ export function useSalaryCalculator(): SalaryCalculatorState {
      GALUTINĖ ALGA
   ======================= */
 
-  // Į bendrą sumą įtraukiamas nightPay
-  const total = kmPay + loadPay + stationPay + extraPay + holidayPay + nightPay;
+  const total = kmPay + loadPay + stationPay + extraPay + holidayPay + nightPay + sleepPay;
 
   return {
     name, surname, setName, setSurname,
     km, loads, stations, setKm, setLoads, setStations,
-    nightShifts, setNightShifts, // NAUJA
+    nightShifts, setNightShifts, 
+    sleepOvers, setSleepOvers,
     loadHours,
     extraWorks, addExtraWork, updateExtraWork, removeExtraWork,
     holidayWorks, addHolidayWork, updateHolidayWork, removeHolidayWork,
     signature, setSignature,
-    kmPay, loadPay, stationPay, extraPay, holidayPay, nightPay, total, // NAUJA: nightPay
+    kmPay, loadPay, stationPay, extraPay, holidayPay, nightPay, sleepPay, total,
   };
 }
