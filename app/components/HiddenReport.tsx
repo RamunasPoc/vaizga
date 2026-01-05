@@ -8,7 +8,7 @@ export default function HiddenReport({
   km,
   loads,
   stations,
-  nightShifts, // Pridėta
+  nightShifts,
   extraWorks,
   holidayWorks,
   loadHours,
@@ -18,7 +18,7 @@ export default function HiddenReport({
   stationPay,
   extraPay,
   holidayPay,
-  nightPay,   // Pridėta
+  nightPay,
   signature,
 }: SalaryCalculatorState) {
   return (
@@ -55,11 +55,11 @@ export default function HiddenReport({
 
       {/* 1. Pagrindiniai duomenys */}
       <div style={{ marginBottom: '25px' }}>
-        <h2 style={{ fontSize: '13px', backgroundColor: '#eee', padding: '5px 10px', marginBottom: '10px', fontWeight: 'bold', textTransform: 'uppercase' }}>1. Pagrindiniai duomenys</h2>
+        <h2 style={{ fontSize: '13px', backgroundColor: '#eee', padding: '5px 10px', marginBottom: '10px', fontWeight: 'bold', textTransform: 'uppercase' }}>1. Pagrindiniai duomenys (Mėnesio suvestinė)</h2>
         <table style={{ width: '100%', borderCollapse: 'collapse' }}>
           <tbody>
             <tr style={{ borderBottom: '1px solid #f0f0f0' }}>
-              <td style={{ padding: '8px 0' }}>Nuvažiuoti kilometrai:</td>
+              <td style={{ padding: '8px 0' }}>Bendri nuvažiuoti kilometrai:</td>
               <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{km || 0} km</td>
             </tr>
             <tr style={{ borderBottom: '1px solid #f0f0f0' }}>
@@ -72,9 +72,8 @@ export default function HiddenReport({
                 {stations || 0} vnt. ({(Number(stations || 0) * 20 / 60).toFixed(2)} val.)
               </td>
             </tr>
-            {/* Pridėta naktinių pamainų eilutė */}
             <tr style={{ borderBottom: '1px solid #f0f0f0' }}>
-              <td style={{ padding: '8px 0' }}>Naktinės pamainos (nuo 22:00 iki 06:00):</td>
+              <td style={{ padding: '8px 0' }}>Naktinės pamainos (+20€ priedas):</td>
               <td style={{ textAlign: 'right', fontWeight: 'bold' }}>{nightShifts || 0} nakt.</td>
             </tr>
           </tbody>
@@ -106,7 +105,7 @@ export default function HiddenReport({
         </div>
       )}
 
-      {/* 3. Šventinės dienos */}
+      {/* 3. Šventinės dienos - ATNAUJINTA LOGIKA SU KM VALANDOMIS */}
       {holidayWorks.length > 0 && (
         <div style={{ marginBottom: '25px' }}>
           <h2 style={{ fontSize: '13px', backgroundColor: '#fef2f2', color: '#b91c1c', padding: '5px 10px', marginBottom: '10px', fontWeight: 'bold', textTransform: 'uppercase' }}>3. Šventinės dienos (Dvigubas tarifas)</h2>
@@ -114,55 +113,70 @@ export default function HiddenReport({
             <thead>
               <tr style={{ borderBottom: '1px solid #fee2e2', textAlign: 'left', color: '#b91c1c' }}>
                 <th style={{ padding: '8px' }}>Data</th>
-                <th style={{ padding: '8px', textAlign: 'right' }}>KM</th>
+                <th style={{ padding: '8px', textAlign: 'right' }}>KM (val.)</th>
                 <th style={{ padding: '8px', textAlign: 'right' }}>Pakr.</th>
                 <th style={{ padding: '8px', textAlign: 'right' }}>Deg.</th>
-                <th style={{ padding: '8px', textAlign: 'right' }}>Suma val.</th>
+                <th style={{ padding: '8px', textAlign: 'right' }}>Bendra dienos trukmė</th>
               </tr>
             </thead>
             <tbody>
-              {holidayWorks.map((d, i) => (
-                <tr key={i} style={{ borderBottom: '1px solid #fff5f5' }}>
-                  <td style={{ padding: '8px' }}>{d.date}</td>
-                  <td style={{ padding: '8px', textAlign: 'right' }}>{d.km}</td>
-                  <td style={{ padding: '8px', textAlign: 'right' }}>{d.loads}</td>
-                  <td style={{ padding: '8px', textAlign: 'right' }}>{d.stations}</td>
-                  <td style={{ padding: '8px', textAlign: 'right', fontWeight: 'bold' }}>
-                    {( (Number(d.loads || 0) * 2) + (Number(d.stations || 0) * 20 / 60) ).toFixed(2)} val.
-                  </td>
-                </tr>
-              ))}
+              {holidayWorks.map((d, i) => {
+                // Konvertuojame KM į valandas (100km = 1.5val)
+                const kmTimeEquivalent = Number(d.km || 0) * 0.015;
+                const loadTime = Number(d.loads || 0) * 2;
+                const stationTime = (Number(d.stations || 0) * 20) / 60;
+                const totalDayHours = kmTimeEquivalent + loadTime + stationTime;
+
+                return (
+                  <tr key={i} style={{ borderBottom: '1px solid #fff5f5' }}>
+                    <td style={{ padding: '8px' }}>{d.date}</td>
+                    <td style={{ padding: '8px', textAlign: 'right' }}>
+                      {d.km} km ({kmTimeEquivalent.toFixed(2)} val.)
+                    </td>
+                    <td style={{ padding: '8px', textAlign: 'right' }}>{d.loads} vnt.</td>
+                    <td style={{ padding: '8px', textAlign: 'right' }}>{d.stations} vnt.</td>
+                    <td style={{ padding: '8px', textAlign: 'right', fontWeight: 'bold' }}>
+                      {totalDayHours.toFixed(2)} val.
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
+          <p style={{ fontSize: '9px', color: '#b91c1c', marginTop: '4px', fontStyle: 'italic' }}>
+            * Šventinę dieną visi įkainiai (įskaitant kilometrus paverstus valandomis) dauginami iš 2.
+          </p>
         </div>
       )}
 
       {/* 4. Finansinė suvestinė */}
       <div style={{ marginTop: '30px', backgroundColor: '#f9f9f9', padding: '20px', borderRadius: '4px', border: '1px solid #eee' }}>
-        <h2 style={{ fontSize: '13px', marginBottom: '15px', fontWeight: 'bold', textTransform: 'uppercase' }}>Apskaičiuotas atlygis po mokesčių (į rankas) </h2>
+        <h2 style={{ fontSize: '13px', marginBottom: '15px', fontWeight: 'bold', textTransform: 'uppercase' }}>Apskaičiuotas atlygis po mokesčių (į rankas)</h2>
+        
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-          <span>Bazinis užmokestis už kilometrus:</span>
+          <span>Bazinis užmokestis už kilometrus (0.114 €/km):</span>
           <span>{kmPay.toFixed(2)} €</span>
         </div>
+        
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-          <span>Pakrovimai, degalinės ir kt. laikas:</span>
+          <span>Užmokestis už laiką (Pakr./Deg./Papildomi):</span>
           <span>{(loadPay + stationPay + extraPay).toFixed(2)} €</span>
         </div>
         
-        {/* Pridėta naktinio darbo finansinė eilutė */}
         {nightPay > 0 && (
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
-            <span>Priedas už naktinį darbą ({nightShifts} nakt.):</span>
+            <span>Priedas už naktines pamainas ({nightShifts} nakt.):</span>
             <span>{nightPay.toFixed(2)} €</span>
           </div>
         )}
 
         {holidayPay > 0 && (
           <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px', color: '#b91c1c', fontWeight: 'bold' }}>
-            <span>Papildomas priedas už šventines dienas:</span>
+            <span>Papildomas priedas už šventines dienas (x2):</span>
             <span>{holidayPay.toFixed(2)} €</span>
           </div>
         )}
+
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '15px', paddingTop: '15px', borderTop: '2px solid #000', fontSize: '20px', fontWeight: 'bold' }}>
           <span>GALUTINĖ SUMA:</span>
           <span>{total.toFixed(2)} €</span>
