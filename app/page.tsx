@@ -195,7 +195,6 @@ export default function Page() {
       />
       
       <p className="text-center text-gray-600 text-[10px] pt-4 uppercase tracking-widest">
-        v2.1 | Vaizga App
       </p>
     </main>
   );
