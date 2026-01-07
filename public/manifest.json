@@ -1,6 +1,6 @@
 {
-  "name": "Vaizga Algos Skaičiuoklė",
-  "short_name": "Vaizga",
+  "name": " Algos Skaičiuoklė",
+  "short_name": "Alga",
   "description": "Išmani algos skaičiuoklė vairuotojams",
   "start_url": "/",
   "display": "standalone",
@@ -9,13 +9,13 @@
   "theme_color": "#000000",
   "icons": [
     {
-      "src": "/LOGO.png",
+      "src": "/app-icon.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/LOGO.png",
+      "src": "/app-icon.png", 
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

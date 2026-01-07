@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 
 // 1. Metadata nustatymai PWA ir SEO
 export const metadata: Metadata = {
-  title: "Vaizga",
+  title: "Vairuotojams",
   description: "Algos skaičiuoklė",
   manifest: "/manifest.json", 
   icons: {
@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "Vaizga",
+    title: "Vairuotojams",
   },
 };
 
