@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { SalaryCalculatorState } from '../hooks/useSalaryCalculator';
 
 export default function HiddenReport({
@@ -24,6 +25,13 @@ export default function HiddenReport({
   signature,
 }: SalaryCalculatorState) {
   
+  // Saugiklis nuo Hydration Error (Server vs Client laiko nesutapimo)
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
   const kmToHours = (kmValue: number | string) => Number(kmValue || 0) * 0.015;
   const stationToHours = (count: number | string) => (Number(count || 0) * 20) / 60;
   const loadToHours = (count: number | string) => Number(count || 0) * 2;
@@ -37,6 +45,13 @@ export default function HiddenReport({
     bg: '#f8fafc',      // Slate 50
     accent: '#f59e0b',  // Amber (priedams išskirti)
   };
+
+  // Jei kodas vykdomas serveryje, laikinai nieko nerodome, kad išvengtume klaidų
+  if (!isMounted) return null;
+
+  // Datos ir laiko fiksavimas vyksta tik naršyklėje
+  const formattedDate = new Date().toLocaleDateString('lt-LT');
+  const formattedTime = new Date().toLocaleTimeString('lt-LT');
 
   return (
     <div
@@ -61,7 +76,7 @@ export default function HiddenReport({
         <div>
           <h1 style={{ fontSize: '26px', fontWeight: '800', color: colors.primary, margin: 0, letterSpacing: '-0.02em' }}>DARBO ATASKAITA</h1>
           <p style={{ color: colors.lightText, margin: '4px 0 0 0', fontSize: '10px' }}>
-            Sugeneruota: {new Date().toLocaleDateString('lt-LT')} {new Date().toLocaleTimeString('lt-LT')}
+            Sugeneruota: {formattedDate} {formattedTime}
           </p>
         </div>
         <div style={{ textAlign: 'right' }}>
@@ -101,7 +116,7 @@ export default function HiddenReport({
         </table>
       </div>
 
-      {/* 3. ŠVENTINĖS DIENOS - ATNAUJINTA LOGIKA (+50€) */}
+      {/* 3. ŠVENTINĖS DIENOS */}
       {holidayWorks.length > 0 && (
         <div style={{ marginBottom: '25px' }}>
           <h2 style={{ fontSize: '12px', fontWeight: '700', marginBottom: '10px', color: '#b91c1c', textTransform: 'uppercase' }}>2. Šventinės dienos (+50.00 € priedas už dieną)</h2>
@@ -184,6 +199,7 @@ export default function HiddenReport({
       <div style={{ marginTop: '50px', display: 'flex', justifyContent: 'flex-end' }}>
         <div style={{ textAlign: 'center' }}>
           <p style={{ fontSize: '10px', marginBottom: '8px', color: colors.lightText, fontWeight: '600' }}>Vairuotojo parašas:</p>
+          {/* ŠTAI ČIA BUVO LIKĘS justify: 'center' */}
           <div style={{ width: '220px', height: '80px', border: `1px solid ${colors.border}`, backgroundColor: '#fff', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
             {signature ? (
               <img src={signature} alt="Parašas" style={{ maxWidth: '90%', maxHeight: '90%', objectFit: 'contain' }} />
