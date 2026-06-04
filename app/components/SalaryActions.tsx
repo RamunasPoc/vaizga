@@ -64,7 +64,6 @@ export default function SalaryActions({ onGeneratePDF, onShare, onReset }: Props
       <div className="flex flex-col items-center gap-1 opacity-40 pt-2">
         <div className="h-px w-12 bg-slate-300 mb-2" />
         <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest text-center">
-          v1.5 Premium Edition
         </p>
         <p className="text-[9px] text-slate-400 text-center px-4 leading-tight">
           Visi duomenys saugomi tik jūsų įrenginyje
