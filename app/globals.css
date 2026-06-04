@@ -1,8 +1,10 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Pagrindinis SaaS fonas - švelnus Slate 50 */
+  --background: #f8fafc;
+  /* Pagrindinis tekstas - sodrus Slate 900 */
+  --foreground: #0f172a;
 }
 
 @theme inline {
@@ -12,15 +14,49 @@
   --font-mono: var(--font-geist-mono);
 }
 
+/* Jei vartotojas naudoja tamsųjį režimą, 
+   padarome jį „profesionaliai tamsų“ (Deep Slate), o ne tiesiog juodą */
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #0f172a; /* Slate 900 */
+    --foreground: #f8fafc; /* Slate 50 */
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  /* Modernus šriftų stack'as geresniam skaitomumui */
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    Roboto,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Užtikriname, kad turinys nebūtų „prikibęs“ prie ekrano kraštų mobiliuose */
+  overflow-x: hidden;
+}
+
+/* Subtilus scrollbar'as, kad negadintų vaizdo */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #e2e8f0;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #cbd5e1;
 }

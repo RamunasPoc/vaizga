@@ -18,7 +18,7 @@ export default function SignaturePad({ signature, setSignature }: Props) {
         return;
       }
       
-      // Naudojame pilną drobę (getCanvas), kad išsaugotume poziciją centre.
+      // Išsaugome su balta drobe, kad PDF atrodytų gerai
       const dataUrl = sigRef.current.getCanvas().toDataURL('image/png');
       setSignature(dataUrl);
     }
@@ -30,45 +30,50 @@ export default function SignaturePad({ signature, setSignature }: Props) {
   };
 
   return (
-    <div className="bg-gray-800 p-4 rounded-2xl border border-gray-700">
-      <div className="flex justify-between items-center mb-2">
-        <label className="text-xs font-bold text-gray-400 uppercase italic">
-          Vairuotojo parašas
+    <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm">
+      <div className="flex justify-between items-center mb-3">
+        <label className="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
+          <span className="text-indigo-500 text-base">✒️</span> Vairuotojo parašas
         </label>
+        
         <button 
           type="button"
           onClick={clear}
-          className="text-[10px] bg-red-600 hover:bg-red-500 text-white px-3 py-1 rounded transition-colors"
+          className="text-[10px] font-bold uppercase tracking-wide text-slate-400 hover:text-red-500 transition-colors flex items-center gap-1"
         >
-          🗑️ Išvalyti
+          <span>✕</span> Išvalyti
         </button>
       </div>
 
-      <div className="bg-white rounded-xl overflow-hidden relative h-[160px]">
+      <div className="bg-slate-50 rounded-xl overflow-hidden relative h-[180px] border border-slate-100 ring-1 ring-inset ring-slate-200/50">
+        {/* Subtili pagalbinė linija pasirašymui */}
+        <div className="absolute left-10 right-10 bottom-12 h-[1px] bg-slate-300/50 pointer-events-none" />
+
         <SignatureCanvas
           ref={sigRef}
           onEnd={handleEnd}
-          penColor="black"
-          // Ištaisyta: minPixelRatio bibliotekoje nustatomas per canvasProps arba ne visose versijose palaikomas.
-          // Saugiausia skaidrų foną palikti čia:
+          penColor="#0f172a" // Slate-900 spalva (profesionaliau nei gryna juoda)
           backgroundColor="rgba(255, 255, 255, 0)"
           canvasProps={{
             className: 'signature-canvas w-full h-full cursor-crosshair touch-none',
-            // Kai kurios versijos priima ratio čia:
-            // @ts-ignore (jei vis tiek meta klaidą, tiesiog ištrinkite šią eilutę)
-            minPixelRatio: 1
           }}
         />
+
         {!signature && (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-20">
-            {/* Ištaisyta: pašalintas text-black konfliktas, paliktas tik text-gray-500 */}
-            <span className="text-gray-500 font-bold text-sm uppercase">Pasirašykite centre</span>
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none transition-opacity duration-300">
+            <span className="text-slate-400 font-medium text-xs uppercase tracking-widest opacity-60">
+              Pasirašykite čia
+            </span>
           </div>
         )}
       </div>
-      <p className="text-[10px] text-gray-500 mt-2 text-center uppercase tracking-tighter">
-        Parašas automatiškai išsaugomas 
-      </p>
+
+      <div className="mt-3 flex items-center justify-center gap-2">
+        <div className={`w-2 h-2 rounded-full ${signature ? 'bg-indigo-500 animate-pulse' : 'bg-slate-300'}`} />
+        <p className="text-[10px] text-slate-400 font-medium uppercase tracking-tight">
+          {signature ? 'Parašas užfiksuotas' : 'Laukiama parašo...'}
+        </p>
+      </div>
     </div>
   );
 }

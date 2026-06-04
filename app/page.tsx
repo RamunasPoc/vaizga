@@ -117,85 +117,91 @@ export default function Page() {
   };
 
   return (
-    <main className="min-h-screen bg-gray-900 text-white p-4 space-y-6 pb-10">
-      <SalaryHeader total={calc.total} />
+    <main className="min-h-screen bg-slate-50 text-slate-900 py-10 px-4 font-sans selection:bg-indigo-100 selection:text-indigo-900">
+      {/* Centrinis konteineris tvarkingam išdėstymui */}
+      <div className="max-w-3xl mx-auto space-y-8 pb-10">
+        
+        <SalaryHeader total={calc.total} />
 
-      <Section title="Vairuotojas">
-        <TextInput label="Vardas" value={calc.name} setValue={calc.setName} icon="👤" />
-        <TextInput label="Pavardė" value={calc.surname} setValue={calc.setSurname} icon="👤" />
-      </Section>
+        <Section title="Vairuotojas">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <TextInput label="Vardas" value={calc.name} setValue={calc.setName} icon="👤" />
+            <TextInput label="Pavardė" value={calc.surname} setValue={calc.setSurname} icon="👤" />
+          </div>
+        </Section>
 
-      <Section title="Pagrindiniai darbai">
-        <NumberInput label="Nuvažiuoti km" value={calc.km} setValue={calc.setKm} icon="🛣️" />
-        <NumberInput label="Pakrovimai terminale" value={calc.loads} setValue={calc.setLoads} icon="📦" />
-        <NumberInput label="Degalinės (20 min.)" value={calc.stations} setValue={calc.setStations} icon="⛽" />
-      </Section>
+        <Section title="Pagrindiniai darbai">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <NumberInput label="Nuvažiuoti km" value={calc.km} setValue={calc.setKm} icon="🛣️" />
+            <NumberInput label="Pakrovimai terminale" value={calc.loads} setValue={calc.setLoads} icon="📦" />
+            <NumberInput label="Degalinės (20 min.)" value={calc.stations} setValue={calc.setStations} icon="⛽" />
+          </div>
+        </Section>
 
-      {/* Sugrupuota priedų sekcija */}
-      <Section title="Darbo sąlygos ir priedai">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <NumberInput
-            label="Naktinės pamainos (22:00-06:00)"
-            value={calc.nightShifts}
-            setValue={calc.setNightShifts}
-            icon="🌙"
-            placeholder="Kiek naktų dirbta..."
-          />
-          <NumberInput
-            label="Nakvynės vilkike"
-            value={calc.sleepOvers}
-            setValue={calc.setSleepOvers}
-            icon="🛌"
-            placeholder="Kiek naktų miegota..."
-          />
-        </div>
-        <p className="text-[10px] text-gray-500 mt-2 italic">
-          * Už kiekvieną naktinę pamainą ir nakvynę pridedama po 20.00 €.
-        </p>
-      </Section>
+        <Section title="Darbo sąlygos ir priedai">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <NumberInput
+              label="Naktinės pamainos (22:00-06:00)"
+              value={calc.nightShifts}
+              setValue={calc.setNightShifts}
+              icon="🌙"
+              placeholder="Kiek naktų dirbta..."
+            />
+            <NumberInput
+              label="Nakvynės vilkike"
+              value={calc.sleepOvers}
+              setValue={calc.setSleepOvers}
+              icon="🛌"
+              placeholder="Kiek naktų miegota..."
+            />
+          </div>
+          <p className="text-xs text-slate-500 mt-3 flex items-center gap-2">
+            <span className="text-indigo-500 bg-indigo-50 w-5 h-5 flex items-center justify-center rounded-full font-bold">ℹ</span>
+            Už kiekvieną naktinę pamainą ir nakvynę pridedama po 20.00 €.
+          </p>
+        </Section>
 
-      <ExtraWorksSection 
-        extraWorks={calc.extraWorks} 
-        addExtraWork={calc.addExtraWork} 
-        updateExtraWork={calc.updateExtraWork} 
-        removeExtraWork={calc.removeExtraWork} 
-      />
-
-      <HolidayWorksSection 
-        holidayWorks={calc.holidayWorks} 
-        addHolidayWork={calc.addHolidayWork} 
-        updateHolidayWork={calc.updateHolidayWork} 
-        removeHolidayWork={calc.removeHolidayWork} 
-      />
-
-      <Section title="Patvirtinimas">
-        <SignaturePad 
-          signature={calc.signature} 
-          setSignature={calc.setSignature} 
+        <ExtraWorksSection 
+          extraWorks={calc.extraWorks} 
+          addExtraWork={calc.addExtraWork} 
+          updateExtraWork={calc.updateExtraWork} 
+          removeExtraWork={calc.removeExtraWork} 
         />
-      </Section>
 
-      <SalaryBreakdown
-        kmPay={calc.kmPay}
-        loadPay={calc.loadPay}
-        stationPay={calc.stationPay}
-        extraPay={calc.extraPay}
-        holidayPay={calc.holidayPay} 
-        nightPay={calc.nightPay}
-        sleepPay={calc.sleepPay} // Pridėta nakvynių suma
-      />
+        <HolidayWorksSection 
+          holidayWorks={calc.holidayWorks} 
+          addHolidayWork={calc.addHolidayWork} 
+          updateHolidayWork={calc.updateHolidayWork} 
+          removeHolidayWork={calc.removeHolidayWork} 
+        />
 
-      {/* Paslėpta ataskaita generavimui */}
-      <HiddenReport {...calc} />
+        <Section title="Patvirtinimas">
+          <SignaturePad 
+            signature={calc.signature} 
+            setSignature={calc.setSignature} 
+          />
+        </Section>
 
-      <SalaryActions 
-        onGeneratePDF={generatePDF} 
-        onShare={handleShare} 
-        onReset={handleReset}
-      />
-      
-      <p className="text-center text-gray-600 text-[10px] pt-4 uppercase tracking-widest">
-      </p>
+        <SalaryBreakdown
+          kmPay={calc.kmPay}
+          loadPay={calc.loadPay}
+          stationPay={calc.stationPay}
+          extraPay={calc.extraPay}
+          holidayPay={calc.holidayPay} 
+          nightPay={calc.nightPay}
+          sleepPay={calc.sleepPay} 
+        />
+
+        {/* Paslėpta ataskaita generavimui */}
+        <HiddenReport {...calc} />
+
+        <SalaryActions 
+          onGeneratePDF={generatePDF} 
+          onShare={handleShare} 
+          onReset={handleReset}
+        />
+        
+      </div>
     </main>
   );
 }

@@ -67,7 +67,7 @@ export interface SalaryCalculatorState {
   extraPay: number;
   holidayPay: number;
   nightPay: number; 
-  sleepPay: number; // NAUJA
+  sleepPay: number;
   total: number;
 }
 
@@ -82,6 +82,7 @@ const RATES = {
   STATION_MIN: 20,     
   NIGHT_SHIFT: 20,     // 20 € už naktinę pamainą
   SLEEP_OVER: 20,      // 20 € už nakvynę vilkike
+  HOLIDAY_BONUS: 50,   // NAUJA: 50 € priedas už šventinę dieną
 };
 
 /* =======================
@@ -143,7 +144,7 @@ export function useSalaryCalculator(): SalaryCalculatorState {
     setExtraWorks((prev) => prev.filter((_, i) => i !== index));
 
   /* =======================
-     ŠVENTINĖS DIENOS (x2)
+     ŠVENTINĖS DIENOS (+50 € priedas)
   ======================= */
 
   const holidayPay = holidayWorks.reduce((sum, day) => {
@@ -152,7 +153,12 @@ export function useSalaryCalculator(): SalaryCalculatorState {
     const dayStationPay = day.stations !== '' ? (Number(day.stations) * RATES.STATION_MIN / 60) * RATES.HOURLY : 0;
 
     const dayTotal = dayKmPay + dayLoadPay + dayStationPay;
-    return sum + (dayTotal * 2); 
+
+    // Jeigu bent vienas laukelis užpildytas, pridedame 50 € bonusą.
+    const hasWork = day.km !== '' || day.loads !== '' || day.stations !== '';
+    const dayBonus = hasWork ? RATES.HOLIDAY_BONUS : 0;
+
+    return sum + dayTotal + dayBonus; 
   }, 0);
 
   const addHolidayWork = () =>
