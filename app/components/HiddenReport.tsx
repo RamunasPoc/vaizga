@@ -32,9 +32,16 @@ export default function HiddenReport({
     setIsMounted(true);
   }, []);
 
-  const kmToHours = (kmValue: number | string) => Number(kmValue || 0) * 0.015;
-  const stationToHours = (count: number | string) => (Number(count || 0) * 20) / 60;
-  const loadToHours = (count: number | string) => Number(count || 0) * 2;
+  // Kad išvengtume JS float klaidų (pvz., 31.90000002), suapvaliname sugeneruotas valandas
+  const kmToHours = (kmValue: number | string) => {
+    const raw = Number(kmValue || 0) * 0.015;
+    return Math.round(raw * 100) / 100; // Suapvalina iki 2 skaičių po kablelio matematiškai
+  };
+
+  const stationToHours = (count: number | string) => {
+    const raw = (Number(count || 0) * 20) / 60;
+    return Math.round(raw * 100) / 100; // Suapvalina iki 2 skaičių po kablelio matematiškai
+  };
 
   // Pagalbinės spalvos (atitinka modernų Indigo stilių)
   const colors = {
@@ -105,7 +112,7 @@ export default function HiddenReport({
             <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
               <td style={{ padding: '10px 0' }}>Pakrovimai / iškrovimai terminale</td>
               <td style={{ textAlign: 'center' }}>{loads || 0} vnt.</td>
-              <td style={{ textAlign: 'right', fontWeight: '600' }}>{loadHours.toFixed(2)} h</td>
+              <td style={{ textAlign: 'right', fontWeight: '600' }}>{(loadHours || 0).toFixed(2)} h</td>
             </tr>
             <tr style={{ borderBottom: `1px solid ${colors.border}` }}>
               <td style={{ padding: '10px 0' }}>Stovėjimas degalinėse</td>
@@ -186,12 +193,12 @@ export default function HiddenReport({
 
         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', color: '#b91c1c' }}>
           <span style={{ fontWeight: '600' }}>Šventinių dienų priedai (vnt. x 50€):</span>
-          <span style={{ fontWeight: '700' }}>{holidayPay.toFixed(2)} €</span>
+          <span style={{ fontWeight: '700' }}>{(holidayPay || 0).toFixed(2)} €</span>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '15px', paddingTop: '15px', borderTop: `2px solid ${colors.text}`, fontSize: '20px', fontWeight: '800', color: colors.primary }}>
           <span>GALUTINĖ SUMA:</span>
-          <span>{total.toFixed(2)} €</span>
+          <span>{(total || 0).toFixed(2)} €</span>
         </div>
       </div>
 
@@ -199,7 +206,6 @@ export default function HiddenReport({
       <div style={{ marginTop: '50px', display: 'flex', justifyContent: 'flex-end' }}>
         <div style={{ textAlign: 'center' }}>
           <p style={{ fontSize: '10px', marginBottom: '8px', color: colors.lightText, fontWeight: '600' }}>Vairuotojo parašas:</p>
-          {/* ŠTAI ČIA BUVO LIKĘS justify: 'center' */}
           <div style={{ width: '220px', height: '80px', border: `1px solid ${colors.border}`, backgroundColor: '#fff', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}>
             {signature ? (
               <img src={signature} alt="Parašas" style={{ maxWidth: '90%', maxHeight: '90%', objectFit: 'contain' }} />

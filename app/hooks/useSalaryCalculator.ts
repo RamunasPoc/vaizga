@@ -82,7 +82,12 @@ const RATES = {
   STATION_MIN: 20,     
   NIGHT_SHIFT: 20,     // 20 € už naktinę pamainą
   SLEEP_OVER: 20,      // 20 € už nakvynę vilkike
-  HOLIDAY_BONUS: 50,   // NAUJA: 50 € priedas už šventinę dieną
+  HOLIDAY_BONUS: 50,   // 50 € priedas už šventinę dieną
+};
+
+// Pagalbinė funkcija saugiam matematiniam apvalinimui iki 2 skaičių po kablelio
+const roundToTwo = (num: number): number => {
+  return Math.round((num + Number.EPSILON) * 100) / 100;
 };
 
 /* =======================
@@ -108,26 +113,28 @@ export function useSalaryCalculator(): SalaryCalculatorState {
      PAGRINDINIAI SKAIČIAVIMAI
   ======================= */
 
-  const kmPay = km !== '' ? Number(km) * RATES.KM : 0;
+  const kmPay = km !== '' ? roundToTwo(Number(km) * RATES.KM) : 0;
   const loadHours = loads !== '' ? Number(loads) * RATES.LOAD_HOURS : 0;
-  const loadPay = loadHours * RATES.HOURLY;
+  const loadPay = roundToTwo(loadHours * RATES.HOURLY);
 
   const stationPay =
     stations !== ''
-      ? (Number(stations) * RATES.STATION_MIN / 60) * RATES.HOURLY
+      ? roundToTwo((Number(stations) * RATES.STATION_MIN / 60) * RATES.HOURLY)
       : 0;
 
-  const nightPay = nightShifts !== '' ? Number(nightShifts) * RATES.NIGHT_SHIFT : 0;
-  const sleepPay = sleepOvers !== '' ? Number(sleepOvers) * RATES.SLEEP_OVER : 0;
+  const nightPay = nightShifts !== '' ? roundToTwo(Number(nightShifts) * RATES.NIGHT_SHIFT) : 0;
+  const sleepPay = sleepOvers !== '' ? roundToTwo(Number(sleepOvers) * RATES.SLEEP_OVER) : 0;
 
   /* =======================
      PAPILDOMI DARBAI
   ======================= */
 
-  const extraPay = extraWorks.reduce((sum, w) => {
-    if (w.hours === '') return sum;
-    return sum + Number(w.hours) * RATES.HOURLY;
-  }, 0);
+  const extraPay = roundToTwo(
+    extraWorks.reduce((sum, w) => {
+      if (w.hours === '') return sum;
+      return sum + Number(w.hours) * RATES.HOURLY;
+    }, 0)
+  );
 
   const addExtraWork = () =>
     setExtraWorks((prev) => [...prev, { date: '', description: '', hours: '' }]);
@@ -147,19 +154,21 @@ export function useSalaryCalculator(): SalaryCalculatorState {
      ŠVENTINĖS DIENOS (+50 € priedas)
   ======================= */
 
-  const holidayPay = holidayWorks.reduce((sum, day) => {
-    const dayKmPay = day.km !== '' ? Number(day.km) * RATES.KM : 0;
-    const dayLoadPay = day.loads !== '' ? Number(day.loads) * RATES.LOAD_HOURS * RATES.HOURLY : 0;
-    const dayStationPay = day.stations !== '' ? (Number(day.stations) * RATES.STATION_MIN / 60) * RATES.HOURLY : 0;
+  const holidayPay = roundToTwo(
+    holidayWorks.reduce((sum, day) => {
+      const dayKmPay = day.km !== '' ? Number(day.km) * RATES.KM : 0;
+      const dayLoadPay = day.loads !== '' ? Number(day.loads) * RATES.LOAD_HOURS * RATES.HOURLY : 0;
+      const dayStationPay = day.stations !== '' ? (Number(day.stations) * RATES.STATION_MIN / 60) * RATES.HOURLY : 0;
 
-    const dayTotal = dayKmPay + dayLoadPay + dayStationPay;
+      const dayTotal = dayKmPay + dayLoadPay + dayStationPay;
 
-    // Jeigu bent vienas laukelis užpildytas, pridedame 50 € bonusą.
-    const hasWork = day.km !== '' || day.loads !== '' || day.stations !== '';
-    const dayBonus = hasWork ? RATES.HOLIDAY_BONUS : 0;
+      // Jeigu bent vienas laukelis užpildytas, pridedame 50 € bonusą.
+      const hasWork = day.km !== '' || day.loads !== '' || day.stations !== '';
+      const dayBonus = hasWork ? RATES.HOLIDAY_BONUS : 0;
 
-    return sum + dayTotal + dayBonus; 
-  }, 0);
+      return sum + dayTotal + dayBonus; 
+    }, 0)
+  );
 
   const addHolidayWork = () =>
     setHolidayWorks((prev) => [...prev, { date: '', km: '', loads: '', stations: '' }]);
@@ -179,7 +188,8 @@ export function useSalaryCalculator(): SalaryCalculatorState {
      GALUTINĖ ALGA
   ======================= */
 
-  const total = kmPay + loadPay + stationPay + extraPay + holidayPay + nightPay + sleepPay;
+  // Sudedame jau švarius, suapvalintus skaičius
+  const total = roundToTwo(kmPay + loadPay + stationPay + extraPay + holidayPay + nightPay + sleepPay);
 
   return {
     name, surname, setName, setSurname,
